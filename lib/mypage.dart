@@ -1,37 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:timer_builder/timer_builder.dart';
 import 'package:provider/provider.dart';
+import 'userInfo.dart';
 import 'homepage.dart';
 
-class MyPage extends StatelessWidget {
-  const MyPage({super.key});
+class MyPage extends StatefulWidget {
+  const MyPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Washing Machine Clicker',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'MyPage'),
-    );
-  }
+  State<MyPage> createState() => _MyPageState();
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class _MyPageState extends State<MyPage> {
+  var info;
 
-  final String title;
+  String _userName = "금오공";
+  String _userId = "20221111";
+  String _dormitory = "오름 1동";
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
   bool _reservation = true;
-  String _location = "오름관 1동 1층";
-  DateTime _startTime = DateTime.parse('2022-10-21 19:40:00');
-  DateTime _endTime = DateTime.parse('2022-10-21 21:00:00');
+  DateTime _startTime = DateTime.parse('2022-11-10 10:45:00');
+  DateTime _endTime = DateTime.parse('2022-11-10 12:00:00');
 
   String calculateTimeDifference(
       {required DateTime startTime, required DateTime endTime}) {
@@ -50,9 +39,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    info = Provider.of<UserInfo>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text("마이페이지"),
         centerTitle: true,
         elevation: 0.0,
       ),
@@ -61,11 +51,11 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              accountName: const Text("TestName"),
-              accountEmail: const Text("TestAccount@kumoh.ac.kr"),
-              currentAccountPicture: const CircleAvatar(
-                backgroundColor: Colors.white,
-                backgroundImage: null,
+              accountName: Text(
+                  info.isEmpty(info.getUserName()) ? "로그인 필요" : info.getUserName()
+              ),
+              accountEmail: Text(
+                  info.isEmpty(info.getUserId()) ? "" : info.getUserId()
               ),
               decoration: BoxDecoration(
                 color: Colors.blue[300],
@@ -74,8 +64,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: const Text("HOME"),
               onTap: () {
-                Navigator.push(context, new MaterialPageRoute(
-                    builder: (context) => new HomePage())
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => HomePage())
                 );
               },
               trailing: const Icon(Icons.arrow_forward_ios),
@@ -103,65 +93,222 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            TimerBuilder.periodic(
-                Duration(seconds: 1),
-                builder: (context) {
-                  return Column(
-                    children: [
-                      Text(
-                        _reservation ? "예약된 내역이 있습니다" : "예약된 내역이 없습니다",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 40,
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              height: 100,
+              margin: EdgeInsets.all(12),
+              child: Column(
+                children: [
+                  Flexible(
+                    fit: FlexFit.tight,
+                    flex: 1,
+                    child: Row(
+                      children: const [
+                        Flexible(
+                            fit: FlexFit.tight,
+                            flex: 1,
+                            child: Text(
+                              "이름",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            )
                         ),
-                      ),
-                      Text(
-                        _reservation ? _location : "",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 40,
+                        Flexible(
+                            fit: FlexFit.tight,
+                            flex: 1,
+                            child: Text(
+                              "학번",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            )
                         ),
-                      ),
-                      Text(
-                        _reservation ?
-                        "${_startTime.month}월 ${_startTime.day}일 "
-                            "${_startTime.hour}시 ${_startTime.minute}분"
-                            " - "
-                            "${_endTime.month}월 ${_endTime.day}일 "
-                            "${_endTime.hour}시 ${_endTime.minute}분"
-                            : "",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 40,
+                        Flexible(
+                            fit: FlexFit.tight,
+                            flex: 1,
+                            child: Text(
+                              "기숙사",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            )
                         ),
-                      ),
-                      Text(
-                        _reservation ? calculateTimeDifference(startTime: _startTime, endTime: _endTime) : '',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 40,
+                      ],
+                    )
+                  ),
+                  Flexible(
+                    fit: FlexFit.tight,
+                    flex: 1,
+                    child: Row(
+                      children: [
+                        Flexible(
+                            fit: FlexFit.tight,
+                            flex: 1,
+                            child: Text(
+                              _userName,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25,
+                              ),
+                            )
                         ),
+                        Flexible(
+                            fit: FlexFit.tight,
+                            flex: 1,
+                            child: Text(
+                              _userId,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25,
+                              ),
+                            )
+                        ),
+                        Flexible(
+                            fit: FlexFit.tight,
+                            flex: 1,
+                            child: Text(
+                              _dormitory,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25,
+                              ),
+                            )
+                        ),
+                      ],
+                    )
+                  ),
+                ],
+              )
+            ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                margin: EdgeInsets.only(left: 12.0, right: 12.0),
+                child: TimerBuilder.periodic(
+                  const Duration(seconds: 1),
+                  builder: (context) {
+                    return Center(
+                      child: Column(
+                        children: [
+                          Flexible(
+                            fit: FlexFit.tight,
+                            flex: 1,
+                            child: Center(
+                              child: Text(
+                                _reservation ? "예약된 내역이 있습니다" : "예약된 내역이 없습니다",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 30,
+                                ),
+                              ),
+                            )
+                          ),
+                          Visibility(
+                            visible: _reservation,
+                            child: Flexible(
+                              fit: FlexFit.tight,
+                              flex: 1,
+                              child: Center(
+                                child: Text(
+                                  "${_startTime.month}월 ${_startTime.day}일 "
+                                      "${_startTime.hour}시 ${_startTime.minute}분"
+                                      " - "
+                                      "${_endTime.month}월 ${_endTime.day}일 "
+                                      "${_endTime.hour}시 ${_endTime.minute}분",
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              )
+                            ),
+                          ),
+                          Visibility(
+                            visible: _reservation,
+                            child: Flexible(
+                              fit: FlexFit.tight,
+                              flex: 1,
+                              child: Center(
+                                child: Text(
+                                  calculateTimeDifference(startTime: _startTime, endTime: _endTime),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              )
+                            ),
+                          )
+                        ],
                       )
-                    ],
-                  );
-                }
-            )
+                    );
+                  }
+                )
+              )
+            ),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              height: 70,
+              margin: EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Flexible(
+                    fit: FlexFit.tight,
+                    flex: 1,
+                    child: IconButton(
+                      onPressed: (){},
+                      icon: const Icon(Icons.settings)
+                    )
+                  ),
+                  Flexible(
+                    fit: FlexFit.tight,
+                    flex: 1,
+                    child: IconButton(
+                      onPressed: (){},
+                      icon: const Icon(Icons.logout)
+                    )
+                  )
+                ],
+              )
+            ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          _reservation = false;
-        },
-        backgroundColor: Colors.blue,
-        child: const Text(
-          "예약취소",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
+      floatingActionButton: Visibility(
+        visible: !info.isEmpty(info.getUserId()),
+        child: FloatingActionButton(
+          onPressed: (){
+            _reservation = false;
+          },
+          backgroundColor: Colors.blue,
+          child: const Text(
+            "예약취소",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
           ),
         ),
-      ),
+      )
     );
   }
 }
