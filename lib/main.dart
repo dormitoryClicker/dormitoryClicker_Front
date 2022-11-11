@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Navigator Demo',
         theme: ThemeData(primarySwatch: Colors.blue),
-        initialRoute: '/home',
+        initialRoute: '/signin',
         routes: {
           '/home': (context) => HomePage(),
           '/mypage': (context) => MyPage(),

@@ -65,9 +65,15 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 title: const Text("마이페이지"),
                 onTap: () {
-                  Navigator.push(context, new MaterialPageRoute(
-                      builder: (context) => new MyPage())
-                  );
+                  if(info.isEmpty(info.getUserId())){
+                    Navigator.push(context, new MaterialPageRoute(
+                        builder: (context) => new SignInPage())
+                    );
+                  } else {
+                    Navigator.push(context, new MaterialPageRoute(
+                        builder: (context) => new MyPage())
+                    );
+                  }
                 },
                 trailing: const Icon(Icons.arrow_forward_ios),
               ),

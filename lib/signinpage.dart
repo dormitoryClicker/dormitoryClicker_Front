@@ -34,6 +34,7 @@ class _SignInPageState extends State<SignInPage> {
             children: [
               Container(
                 alignment: Alignment.topLeft,
+                padding: const EdgeInsets.only(top: 15.0, left: 15.0),
                 child: IconButton(
                   icon: const Icon(
                     Icons.arrow_back_ios,
@@ -45,9 +46,13 @@ class _SignInPageState extends State<SignInPage> {
                   },
                 ),
               ),
-              const Text(
-                "Login",
-                style: TextStyle(color: Colors.lightBlue, fontSize: 20.0),
+              Container(
+                alignment: Alignment.topLeft,
+                padding: const EdgeInsets.only(top: 15.0),
+                child: const Text(
+                  "Login",
+                  style: TextStyle(color: Colors.lightBlue, fontSize: 20.0),
+                )
               )
             ]
           ),

@@ -20,6 +20,7 @@ class _SignUpPageState extends State<SignUpPage> {
             children: [
               Container(
                 alignment: Alignment.topLeft,
+                padding: const EdgeInsets.only(top: 15.0, left: 15.0),
                 child: IconButton(
                   icon: const Icon(
                     Icons.arrow_back_ios,
@@ -31,9 +32,13 @@ class _SignUpPageState extends State<SignUpPage> {
                   },
                 ),
               ),
-              const Text(
-                "Register",
-                style: TextStyle(color: Colors.lightBlue, fontSize: 20.0),
+              Container(
+                  alignment: Alignment.topLeft,
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: const Text(
+                    "Register",
+                    style: TextStyle(color: Colors.lightBlue, fontSize: 20.0),
+                  )
               )
             ]
           ),

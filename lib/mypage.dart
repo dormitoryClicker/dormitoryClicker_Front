@@ -3,6 +3,7 @@ import 'package:timer_builder/timer_builder.dart';
 import 'package:provider/provider.dart';
 import 'userInfo.dart';
 import 'homepage.dart';
+import 'signinpage.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({Key? key}) : super(key: key);
@@ -13,10 +14,6 @@ class MyPage extends StatefulWidget {
 
 class _MyPageState extends State<MyPage> {
   var info;
-
-  String _userName = "금오공";
-  String _userId = "20221111";
-  String _dormitory = "오름 1동";
 
   bool _reservation = true;
   DateTime _startTime = DateTime.parse('2022-11-10 10:45:00');
@@ -73,8 +70,8 @@ class _MyPageState extends State<MyPage> {
             ListTile(
               title: const Text("마이페이지"),
               onTap: () {
-                Navigator.push(context, new MaterialPageRoute(
-                    builder: (context) => new MyPage())
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => MyPage())
                 );
               },
               trailing: const Icon(Icons.arrow_forward_ios),
@@ -82,7 +79,7 @@ class _MyPageState extends State<MyPage> {
             ListTile(
               title: const Text("문의/건의"),
               onTap: () {
-                print("");
+
               },
               trailing: const Icon(Icons.arrow_forward_ios),
             ),
@@ -99,7 +96,7 @@ class _MyPageState extends State<MyPage> {
                 borderRadius: BorderRadius.circular(12),
               ),
               height: 100,
-              margin: EdgeInsets.all(12),
+              margin: const EdgeInsets.all(12),
               child: Column(
                 children: [
                   Flexible(
@@ -155,7 +152,7 @@ class _MyPageState extends State<MyPage> {
                             fit: FlexFit.tight,
                             flex: 1,
                             child: Text(
-                              _userName,
+                              info.getUserName(),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -167,7 +164,7 @@ class _MyPageState extends State<MyPage> {
                             fit: FlexFit.tight,
                             flex: 1,
                             child: Text(
-                              _userId,
+                              info.getUserId(),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -179,7 +176,7 @@ class _MyPageState extends State<MyPage> {
                             fit: FlexFit.tight,
                             flex: 1,
                             child: Text(
-                              _dormitory,
+                              info.getDormitory(),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -199,7 +196,7 @@ class _MyPageState extends State<MyPage> {
                   border: Border.all(color: Colors.black),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                margin: EdgeInsets.only(left: 12.0, right: 12.0),
+                margin: const EdgeInsets.only(left: 12.0, right: 12.0),
                 child: TimerBuilder.periodic(
                   const Duration(seconds: 1),
                   builder: (context) {
@@ -268,7 +265,7 @@ class _MyPageState extends State<MyPage> {
                 borderRadius: BorderRadius.circular(12),
               ),
               height: 70,
-              margin: EdgeInsets.all(12),
+              margin: const EdgeInsets.all(12),
               child: Row(
                 children: [
                   Flexible(
@@ -283,7 +280,15 @@ class _MyPageState extends State<MyPage> {
                     fit: FlexFit.tight,
                     flex: 1,
                     child: IconButton(
-                      onPressed: (){},
+                      onPressed: (){
+                        info.putUserId("");
+                        info.putPassword("");
+                        info.putUserName("");
+                        info.putDormitory("");
+                        Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => SignInPage())
+                        );
+                      },
                       icon: const Icon(Icons.logout)
                     )
                   )
@@ -294,7 +299,7 @@ class _MyPageState extends State<MyPage> {
         ),
       ),
       floatingActionButton: Visibility(
-        visible: !info.isEmpty(info.getUserId()),
+        visible: _reservation,
         child: FloatingActionButton(
           onPressed: (){
             _reservation = false;
