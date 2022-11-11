@@ -17,7 +17,7 @@ class _SignInPageState extends State<SignInPage> {
   var info;
 
   String _userId = "20221111";
-  String _password = "1q2w3e4r5t";
+  String _password = "1234";
   String _userName = "금오공";
   String _dormitory = "오름관 1동";
 
