@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:timer_builder/timer_builder.dart';
 import 'package:provider/provider.dart';
-import 'userInfo.dart';
-import 'homepage.dart';
-import 'mypage.dart';
-import 'reservepage.dart';
-import 'signinpage.dart';
-import 'signuppage.dart';
+import 'user_info.dart';
+import 'home_page.dart';
+import 'my_page.dart';
+import 'reserve_page.dart';
+import 'signin_page.dart';
+import 'signup_page.dart';
 
 void main() => runApp(MyApp());
 

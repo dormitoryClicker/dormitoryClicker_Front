@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'userInfo.dart';
-import 'mypage.dart';
-import 'reservepage.dart';
-import 'signinpage.dart';
-import 'signuppage.dart';
+import 'user_info.dart';
+import 'my_page.dart';
+import 'reserve_page.dart';
 
 class MyIcons{
   static const IconData local_laundry_service = const IconData(

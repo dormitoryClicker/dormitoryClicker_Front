@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:timer_builder/timer_builder.dart';
 import 'package:provider/provider.dart';
-import 'homepage.dart';
-import 'mypage.dart';
-import 'userInfo.dart';
+import 'user_info.dart';
 
 class ReservePage extends StatefulWidget {
   const ReservePage({Key? key}) : super(key: key);

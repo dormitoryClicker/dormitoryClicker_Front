@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'userInfo.dart';
-import 'homepage.dart';
-import 'signuppage.dart';
+import 'user_info.dart';
+import 'home_page.dart';
+import 'signup_page.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({Key? key}) : super(key: key);

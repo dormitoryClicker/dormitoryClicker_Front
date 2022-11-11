@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:timer_builder/timer_builder.dart';
 import 'package:provider/provider.dart';
-import 'userInfo.dart';
-import 'homepage.dart';
-import 'signinpage.dart';
+import 'user_info.dart';
+import 'home_page.dart';
+import 'signin_page.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({Key? key}) : super(key: key);
