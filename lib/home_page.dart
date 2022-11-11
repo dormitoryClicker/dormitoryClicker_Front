@@ -56,6 +56,7 @@ class _HomePageState extends State<HomePage> {
     final List<String> Time_E = <String>[
       '22-11-09 08:00', '22-11-09 10:00', '22-11-09 12:00','22-11-09 14:00', '미사용중', '미사용중'];
 
+    print("hello");
 
     return Scaffold(
       appBar: AppBar(
