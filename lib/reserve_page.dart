@@ -150,19 +150,6 @@ class _ReservePageState extends State<ReservePage> {
     return null;
   }
 
-  void getComplete ({required String day, required String s_hour, required String s_minute,
-    required String e_hour, required String e_minute}) {
-
-    DateTime _startTime = DateTime.parse('${day} ${s_hour}:${s_minute}:00');
-    DateTime _endTime = DateTime.parse('${day} ${e_hour}:${e_minute}:00');
-
-    print("${_startTime.month}월 ${_startTime.day}일 "
-        "${_startTime.hour}시 ${_startTime.minute}분"
-        " - "
-        "${_endTime.month}월 ${_endTime.day}일 "
-        "${_endTime.hour}시 ${_endTime.minute}분");
-  }
-
   void getReserve ({required String day, required String s_hour, required String s_minute,
     required String e_hour, required String e_minute}) {
 
@@ -184,7 +171,7 @@ class _ReservePageState extends State<ReservePage> {
       }
       else if (MyTime.select_edHour == true || MyTime.select_edMin == true) {
         if(diff >= 0){  // 합당한 총시간을 지정하였는가?
-          if(diff >= 180 ){  // 3시간 이상을 지정하였는가?
+          if(diff > 180 ){  // 3시간 이상을 지정하였는가?
             print("3시간을 초과합니다.");
           }
           else{
