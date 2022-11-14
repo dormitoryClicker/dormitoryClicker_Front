@@ -134,6 +134,7 @@ class _ReservePageState extends State<ReservePage> {
 
   int daySelect = 0;
 
+
   String getToday({required int daySelect}) {
     var now = DateTime.now();
     DateTime day = DateTime(now.year, now.month, now.day + daySelect);
@@ -150,6 +151,9 @@ class _ReservePageState extends State<ReservePage> {
     return null;
   }
 
+  String message = '';
+  String my_r_time = '';
+
   void getReserve ({required String day, required String s_hour, required String s_minute,
     required String e_hour, required String e_minute}) {
 
@@ -164,32 +168,49 @@ class _ReservePageState extends State<ReservePage> {
 
     int reserved = info.getReserved();
 
+    DateTime _startTime = DateTime.parse('${day} ${s_hour}:${s_minute}:00');
+    DateTime _endTime = DateTime.parse('${day} ${e_hour}:${e_minute}:00');
+
     if(reserved == 0){  // 이미 예약을 하였는가?
       if(MyTime.select_edHour == false && MyTime.select_edMin == false
           && MyTime.select_edHour == false && MyTime.select_edMin == false) {
         print("시간을 지정해주세요.");
+        message = '시간을 지정해주세요.';
       }
       else if (MyTime.select_edHour == true || MyTime.select_edMin == true) {
         if(diff >= 0){  // 합당한 총시간을 지정하였는가?
           if(diff > 180 ){  // 3시간 이상을 지정하였는가?
             print("3시간을 초과합니다.");
+            message = '3시간을 초과합니다.';
           }
           else{
-            print("예약이 가능할 것 같습니다.");
+            print("예약이 가능합니다.");
             info.putReserved(1);
+            message = '예약이 가능합니다.';
+            my_r_time = "${_startTime.month}월 ${_startTime.day}일 "
+            "${_startTime.hour}시 ${_startTime.minute}분"
+                " - "
+                "${_endTime.month}월 ${_endTime.day}일 "
+                "${_endTime.hour}시 ${_endTime.minute}분";
+            message += "\n\n${my_r_time}";
           }
         }
         else {
           print("다시 시간을 지정해주세요.");
+          message = '다시 시간을 지정해주세요.';
         }
       }
     }
     else if (reserved == 1){
       print("예약을 이미 하셨습니다.");
+      message = '예약을 이미 하셨습니다.';
+      my_r_time = "${_startTime.month}월 ${_startTime.day}일 "
+          "${_startTime.hour}시 ${_startTime.minute}분"
+          " - "
+          "${_endTime.month}월 ${_endTime.day}일 "
+          "${_endTime.hour}시 ${_endTime.minute}분";
+      message += "\n\n${my_r_time}";
     }
-
-    DateTime _startTime = DateTime.parse('${day} ${s_hour}:${s_minute}:00');
-    DateTime _endTime = DateTime.parse('${day} ${e_hour}:${e_minute}:00');
 
     print("${_startTime.month}월 ${_startTime.day}일 "
         "${_startTime.hour}시 ${_startTime.minute}분"
@@ -198,11 +219,17 @@ class _ReservePageState extends State<ReservePage> {
         "${_endTime.hour}시 ${_endTime.minute}분");
   }
 
+  void getCancled () {
+    info.putReserved(0);
+  }
+
   var info;
 
   @override
   Widget build(BuildContext context) {
     info = Provider.of<UserInfo>(context, listen: true);
+    MyTime.set_Day = getToday(daySelect: 0);
+
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -514,14 +541,98 @@ class _ReservePageState extends State<ReservePage> {
                       children: <Widget>[
                         ElevatedButton(
                             onPressed: (){  // 시간 정상 입력돴는지 확인용
-                              //getComplete(day: MyTime.set_Day, s_hour: MyTime.start_Hour, s_minute: MyTime.start_Min,e_hour: MyTime.end_Hour, e_minute: MyTime.end_Min);
                               getReserve(day: MyTime.set_Day, s_hour: MyTime.start_Hour, s_minute: MyTime.start_Min,
                                   e_hour: MyTime.end_Hour, e_minute: MyTime.end_Min);
+                              showDialog(
+                                  context: context,
+                                  //barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: Text(message),
+                                      actions: [
+                                        Center(
+                                          child: ElevatedButton(
+                                            child: const Text('확인'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }
+                              );
                             },
                             child: const Text('예약하기')),
                         const Text('    '),
                         ElevatedButton(
-                            onPressed: (){},
+                            onPressed: (){
+                              if(info.getReserved() == 1){   // 예약이 있다면 기존 예약 취소
+                                showDialog(
+                                    context: context,
+                                    //barrierDismissible: false,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: Text("예약을 취소하시겠습니까?\n\n${my_r_time}"),
+                                        actions: <Widget>[
+                                          ElevatedButton(
+                                            child: const Text('확인'),
+                                            onPressed: () {
+                                              getCancled();
+                                              Navigator.of(context).pop();
+                                              showDialog(
+                                                  context: context,
+                                                  //barrierDismissible: false,
+                                                  builder: (BuildContext context) {
+                                                    return AlertDialog(
+                                                      content: Text("예약이 취소되었습니다."),
+                                                      actions: [
+                                                        Center(
+                                                          child: ElevatedButton(
+                                                            child: const Text('확인'),
+                                                            onPressed: () {
+                                                              Navigator.of(context).pop();
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  }
+                                              );
+                                            },
+                                          ),
+                                          ElevatedButton(
+                                            child: const Text('취소'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                );
+                              }
+                              else{     // 예약이 없다면?
+                                showDialog(
+                                    context: context,
+                                    //barrierDismissible: false,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: Text("예약이 없습니다."),
+                                        actions: <Widget>[
+                                          ElevatedButton(
+                                            child: const Text('확인'),
+                                            onPressed: () {
+                                              getCancled();
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                );
+                              }
+                            },
                             child: const Text('예약취소')),
                       ],
                     ),
