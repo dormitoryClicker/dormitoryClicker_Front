@@ -6,6 +6,7 @@ import 'my_page.dart';
 import 'reserve_page.dart';
 import 'signin_page.dart';
 import 'signup_page.dart';
+import 'setting_page.dart';
 
 void main() => runApp(MyApp());
 

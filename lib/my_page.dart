@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'user_info.dart';
 import 'home_page.dart';
 import 'signin_page.dart';
+import 'setting_page.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({Key? key}) : super(key: key);
@@ -272,7 +273,11 @@ class _MyPageState extends State<MyPage> {
                     fit: FlexFit.tight,
                     flex: 1,
                     child: IconButton(
-                      onPressed: (){},
+                      onPressed: (){
+                        Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => SettingPage())
+                        );
+                      },
                       icon: const Icon(Icons.settings)
                     )
                   ),
