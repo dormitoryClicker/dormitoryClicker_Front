@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'signin_page.dart';
+import 'users_data.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -11,8 +13,20 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
 
+  var usersData;
+
+  String? _userName;
+  String? _userId;
+  String? _password;
+  String? _passCheck;
+  String? _dormitory;
+
+  String? _dormFirst;
+  String? _dormSecond;
+
   @override
   Widget build(BuildContext context) {
+    usersData = Provider.of<UsersData>(context, listen: true);
     return Scaffold(
       body: Column(
         children: [
@@ -20,7 +34,7 @@ class _SignUpPageState extends State<SignUpPage> {
             children: [
               Container(
                 alignment: Alignment.topLeft,
-                padding: const EdgeInsets.only(top: 15.0, left: 15.0),
+                padding: const EdgeInsets.only(top: 30.0, left: 15.0),
                 child: IconButton(
                   icon: const Icon(
                     Icons.arrow_back_ios,
@@ -34,9 +48,9 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               Container(
                   alignment: Alignment.topLeft,
-                  padding: const EdgeInsets.only(top: 15.0),
+                  padding: const EdgeInsets.only(top: 30.0),
                   child: const Text(
-                    "Register",
+                    "회원가입",
                     style: TextStyle(color: Colors.lightBlue, fontSize: 20.0),
                   )
               )
@@ -63,23 +77,76 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       validator: (value) {
                         if (value != null && value.isEmpty) {
-                          return '이름을 입력해주세요!';
+                          return '필수 항목입니다';
+                        }
+                        _userName = value;
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12.0),
+                    DropdownButtonFormField(
+                      items: <String>['오름관', '푸름관']
+                          .map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      autofocus: false,
+                      decoration: const InputDecoration(
+                        icon: Icon(Icons.apartment),
+                        labelText: '기숙사 관',
+                        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                      ),
+                      value: _dormFirst,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _dormFirst = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value != null && value.isEmpty) {
+                          return '필수 항목입니다';
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 12.0),
-                    TextFormField(
-                      keyboardType: TextInputType.text,
+                    DropdownButtonFormField(
+                      items: (_dormFirst == null) ?
+                      <String>[].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList() : (_dormFirst == "오름관") ?
+                      <String>['1동', '2동', '3동'].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList() :
+                      <String>['1동', '2동', '3동', '4동'].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
                       autofocus: false,
                       decoration: const InputDecoration(
                         icon: Icon(Icons.apartment),
-                        labelText: '기숙사',
+                        labelText: '기숙사 동',
                         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),
+                      value: _dormSecond,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _dormSecond = value;
+                        });
+                      },
                       validator: (value) {
                         if (value != null && value.isEmpty) {
-                          return '기숙사를 입력해주세요!';
+                          return '필수 항목입니다';
                         }
                         return null;
                       },
@@ -95,8 +162,9 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       validator: (value) {
                         if (value != null && value.isEmpty) {
-                          return '학번을 입력해주세요!';
+                          return '필수 항목입니다';
                         }
+                        _userId = value;
                         return null;
                       },
                     ),
@@ -111,8 +179,9 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       validator: (value) {
                         if (value != null && value.isEmpty) {
-                          return '비밀번호를 입력해주세요!';
+                          return '필수 항목입니다';
                         }
+                        _password = value;
                         return null;
                       },
                     ),
@@ -127,8 +196,9 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       validator: (value) {
                         if (value != null && value.isEmpty) {
-                          return '비밀번호를 다시 한 번 입력해주세요!';
+                          return '필수 항목입니다';
                         }
+                        _passCheck = value;
                         return null;
                       },
                     ),
@@ -138,6 +208,49 @@ class _SignUpPageState extends State<SignUpPage> {
                       child: ElevatedButton(
                         onPressed: () {
                           if(_formKey.currentState!.validate()) {
+                            if(usersData.findUser(_userId) != null){
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: const Text("이미 가입된 아이디입니다"),
+                                      actions: [
+                                        Center(
+                                            child: ElevatedButton(
+                                                onPressed: (){ Navigator.pop(context); },
+                                                child: const Text("확인")
+                                            )
+                                        )
+                                      ],
+                                    );
+                                  }
+                              );
+                              return;
+                            }
+
+                            if(_password != _passCheck){
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: const Text("비밀번호가 틀렸습니다"),
+                                      actions: [
+                                        Center(
+                                            child: ElevatedButton(
+                                                onPressed: (){ Navigator.pop(context); },
+                                                child: const Text("확인")
+                                            )
+                                        )
+                                      ],
+                                    );
+                                  }
+                              );
+                              return;
+                            }
+                            
+                            _dormitory = _dormFirst! + ' ' + _dormSecond!;
+                            usersData.addUser(_userName, _userId, _password, _dormitory);
+
                             Navigator.push(context, MaterialPageRoute(
                                 builder: (context) => const SignInPage())
                             );

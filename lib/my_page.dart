@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:timer_builder/timer_builder.dart';
 import 'package:provider/provider.dart';
 import 'user_info.dart';
+import 'users_data.dart';
 import 'home_page.dart';
 import 'signin_page.dart';
+import 'setting_page.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({Key? key}) : super(key: key);
@@ -13,30 +15,41 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
-  var info;
-
-  bool _reservation = true;
-  DateTime _startTime = DateTime.parse('2022-11-10 10:45:00');
-  DateTime _endTime = DateTime.parse('2022-11-10 12:00:00');
-
-  String calculateTimeDifference(
-      {required DateTime startTime, required DateTime endTime}) {
-    int diffSec = endTime.difference(DateTime.now()).inSeconds;
-    if (diffSec <= 0) _reservation = false;
-
-    int check = DateTime.now().difference(startTime).inSeconds;
-    if (check <= 0) return '예약 시간이 되지 않았습니다';
-
-    int hr = diffSec ~/ 3600;
-    int min = (diffSec - 3600 * hr) ~/ 60;
-    int sec = diffSec % 60;
-
-    return '${hr}시간 ${min}분 ${sec}초 남음';
-  }
+  var userInfo;
+  var usersData;
 
   @override
   Widget build(BuildContext context) {
-    info = Provider.of<UserInfo>(context, listen: true);
+
+    userInfo = Provider.of<UserInfo>(context, listen: true);
+    usersData = Provider.of<UsersData>(context, listen: true);
+
+    DateTime tempStartTime = userInfo.getStartTime();
+    DateTime tempEndTime = userInfo.getEndTime();
+
+    String calculateTimeDifference(
+        {required DateTime? startTime, required DateTime? endTime}) {
+      int diffSec = endTime!.difference(DateTime.now()).inSeconds;
+      if (diffSec <= 0){
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          usersData.deleteReservation(userInfo.getUserId());
+          userInfo.putCanReservation(true);
+          userInfo.putMachineNum("");
+          userInfo.putStartTime("");
+          userInfo.putEndTime("");
+        });
+      }
+
+      int check = DateTime.now().difference(startTime!).inSeconds;
+      if (check <= 0) return '예약 시간이 되지 않았습니다';
+
+      int hr = diffSec ~/ 3600;
+      int min = (diffSec - 3600 * hr) ~/ 60;
+      int sec = diffSec % 60;
+
+      return '$hr시간 $min분 $sec초 남음';
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("마이페이지"),
@@ -48,18 +61,12 @@ class _MyPageState extends State<MyPage> {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              accountName: Text(
-                  info.isEmpty(info.getUserName()) ? "로그인 필요" : info.getUserName()
-              ),
-              accountEmail: Text(
-                  info.isEmpty(info.getUserId()) ? "" : info.getUserId()
-              ),
-              decoration: BoxDecoration(
-                color: Colors.blue[300],
-              ),
+              accountName: Text(userInfo.getUserName()),
+              accountEmail: Text(userInfo.getUserId()),
+              decoration: BoxDecoration(color: Colors.blue[300]),
             ),
             ListTile(
-              title: const Text("HOME"),
+              title: const Text("홈"),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(
                     builder: (context) => HomePage())
@@ -79,7 +86,9 @@ class _MyPageState extends State<MyPage> {
             ListTile(
               title: const Text("문의/건의"),
               onTap: () {
-
+                /*************************************/
+                /**************이메일 API*************/
+                /*************************************/
               },
               trailing: const Icon(Icons.arrow_forward_ios),
             ),
@@ -152,7 +161,7 @@ class _MyPageState extends State<MyPage> {
                             fit: FlexFit.tight,
                             flex: 1,
                             child: Text(
-                              info.getUserName(),
+                              userInfo.getUserName(),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -164,7 +173,7 @@ class _MyPageState extends State<MyPage> {
                             fit: FlexFit.tight,
                             flex: 1,
                             child: Text(
-                              info.getUserId(),
+                              userInfo.getUserId(),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -176,7 +185,7 @@ class _MyPageState extends State<MyPage> {
                             fit: FlexFit.tight,
                             flex: 1,
                             child: Text(
-                              info.getDormitory(),
+                              userInfo.getDormitory(),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -208,7 +217,8 @@ class _MyPageState extends State<MyPage> {
                             flex: 1,
                             child: Center(
                               child: Text(
-                                _reservation ? "예약된 내역이 있습니다" : "예약된 내역이 없습니다",
+                                userInfo.getCanReservation() ?
+                                "예약 내역이 없습니다" : "예약 내역이 있습니다",
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 30,
@@ -217,17 +227,19 @@ class _MyPageState extends State<MyPage> {
                             )
                           ),
                           Visibility(
-                            visible: _reservation,
+                            visible: userInfo.getCanReservation() ?
+                            false : true,
                             child: Flexible(
                               fit: FlexFit.tight,
                               flex: 1,
                               child: Center(
                                 child: Text(
-                                  "${_startTime.month}월 ${_startTime.day}일 "
-                                      "${_startTime.hour}시 ${_startTime.minute}분"
+                                  userInfo.getCanReservation() ? "" :
+                                  "${tempStartTime.month}월 ${tempStartTime.day}일 "
+                                      "${tempStartTime.hour}시 ${tempStartTime.minute}분"
                                       " - "
-                                      "${_endTime.month}월 ${_endTime.day}일 "
-                                      "${_endTime.hour}시 ${_endTime.minute}분",
+                                      "${tempEndTime.month}월 ${tempEndTime.day}일 "
+                                      "${tempEndTime.hour}시 ${tempEndTime.minute}분",
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20,
@@ -237,13 +249,15 @@ class _MyPageState extends State<MyPage> {
                             ),
                           ),
                           Visibility(
-                            visible: _reservation,
+                            visible: userInfo.getCanReservation() ?
+                            false : true,
                             child: Flexible(
                               fit: FlexFit.tight,
                               flex: 1,
                               child: Center(
                                 child: Text(
-                                  calculateTimeDifference(startTime: _startTime, endTime: _endTime),
+                                  userInfo.getCanReservation() ? "" :
+                                  calculateTimeDifference(startTime: tempStartTime, endTime: tempEndTime),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20,
@@ -251,7 +265,34 @@ class _MyPageState extends State<MyPage> {
                                 ),
                               )
                             ),
-                          )
+                          ),
+                          Container(
+                            alignment: Alignment.bottomRight,
+                            margin: const EdgeInsets.only(bottom: 12, right: 30),
+                            child: Visibility(
+                              visible: userInfo.getCanReservation() ?
+                              false : true,
+                              child: ElevatedButton(
+                                onPressed: (){
+                                  usersData.deleteReservation(userInfo.getUserId());
+                                  userInfo.putCanReservation(true);
+                                  userInfo.putMachineNum("");
+                                  userInfo.putStartTime("");
+                                  userInfo.putEndTime("");
+                                },
+                                style: ButtonStyle(
+                                  padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(15.0))
+                                ),
+                                child: const Text(
+                                  "예약취소",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            )
+                          ),
                         ],
                       )
                     );
@@ -272,7 +313,11 @@ class _MyPageState extends State<MyPage> {
                     fit: FlexFit.tight,
                     flex: 1,
                     child: IconButton(
-                      onPressed: (){},
+                      onPressed: (){
+                        Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => SettingPage())
+                        );
+                      },
                       icon: const Icon(Icons.settings)
                     )
                   ),
@@ -281,10 +326,14 @@ class _MyPageState extends State<MyPage> {
                     flex: 1,
                     child: IconButton(
                       onPressed: (){
-                        info.putUserId("");
-                        info.putPassword("");
-                        info.putUserName("");
-                        info.putDormitory("");
+                        userInfo.putUserId("");
+                        userInfo.putPassword("");
+                        userInfo.putUserName("");
+                        userInfo.putDormitory("");
+                        userInfo.putCanReservation(true);
+                        userInfo.putMachineNum("");
+                        userInfo.putStartTime("");
+                        userInfo.putEndTime("");
                         Navigator.push(context, MaterialPageRoute(
                             builder: (context) => SignInPage())
                         );
@@ -296,22 +345,6 @@ class _MyPageState extends State<MyPage> {
               )
             ),
           ],
-        ),
-      ),
-      floatingActionButton: Visibility(
-        visible: _reservation,
-        child: FloatingActionButton(
-          onPressed: (){
-            _reservation = false;
-          },
-          backgroundColor: Colors.blue,
-          child: const Text(
-            "예약취소",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
         ),
       )
     );

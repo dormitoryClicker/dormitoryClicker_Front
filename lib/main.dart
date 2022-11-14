@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'user_info.dart';
+import 'users_data.dart';
+import 'dorm_data.dart';
 import 'home_page.dart';
 import 'my_page.dart';
 import 'reserve_page.dart';
 import 'signin_page.dart';
 import 'signup_page.dart';
+import 'setting_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,18 +17,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<UserInfo>(
-      create: (_) => UserInfo(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => UserInfo()
+        ),
+        ChangeNotifierProvider(
+            create: (context) => UsersData()
+        ),
+        ChangeNotifierProvider(
+            create: (context) => DormData()
+        ),
+      ],
       child: MaterialApp(
-        title: 'Navigator Demo',
+        title: 'Dormitory Clicker',
         theme: ThemeData(primarySwatch: Colors.blue),
         initialRoute: '/signin',
         routes: {
-          '/home': (context) => HomePage(),
+          '/': (context) => HomePage(),
           '/mypage': (context) => MyPage(),
-          '/reserve': (context) => ReservePage(),
+          '/reservation': (context) => ReservePage(),
           '/signin': (context) => SignInPage(),
           '/signup': (context) => SignUpPage(),
+          '/setting' : (context) => SettingPage()
         },
       ),
     );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 import 'user_info.dart';
+import 'users_data.dart';
 import 'home_page.dart';
 import 'signup_page.dart';
 
@@ -14,19 +16,41 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   final _formKey = GlobalKey<FormState>();
 
-  var info;
-
-  String _userId = "20221111";
-  String _password = "1234";
-  String _userName = "금오공";
-  String _dormitory = "오름관 1동";
+  var userInfo;
+  var usersData;
 
   String? _tempId;
   String? _tempPw;
 
+  Map? _tempUser;
+
+  Future _onPowerKey() async {
+    return await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('어플을 종료합니다'),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                },
+                child: Text('확인')),
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('취소')),
+          ],
+        );
+      }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    info = Provider.of<UserInfo>(context, listen: true);
+    userInfo = Provider.of<UserInfo>(context, listen: true);
+    usersData = Provider.of<UsersData>(context, listen: true);
     return Scaffold(
       body: Column(
         children: [
@@ -34,7 +58,7 @@ class _SignInPageState extends State<SignInPage> {
             children: [
               Container(
                 alignment: Alignment.topLeft,
-                padding: const EdgeInsets.only(top: 15.0, left: 15.0),
+                padding: const EdgeInsets.only(top: 30.0, left: 15.0),
                 child: IconButton(
                   icon: const Icon(
                     Icons.arrow_back_ios,
@@ -42,15 +66,15 @@ class _SignInPageState extends State<SignInPage> {
                     size: 25.0,
                   ),
                   onPressed: () {
-                    Navigator.pop(context);
+                    _onPowerKey();
                   },
                 ),
               ),
               Container(
                 alignment: Alignment.topLeft,
-                padding: const EdgeInsets.only(top: 15.0),
+                padding: const EdgeInsets.only(top: 30.0),
                 child: const Text(
-                  "Login",
+                  "로그인",
                   style: TextStyle(color: Colors.lightBlue, fontSize: 20.0),
                 )
               )
@@ -106,15 +130,53 @@ class _SignInPageState extends State<SignInPage> {
                       child: ElevatedButton(
                         onPressed: () {
                           if(_formKey.currentState!.validate()) {
-                            if(_tempId != _userId || _tempPw != _password){
-                              /* 팝업 창 생성 필요 */
-                              print("학번 또는 비밀번호가 유효하지 않음");
+                            _tempUser = usersData.findUser(_tempId);
+                            if(_tempUser == null){
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    content: const Text("해당 아이디가 존재하지 않습니다"),
+                                    actions: [
+                                      Center(
+                                        child: ElevatedButton(
+                                          onPressed: (){ Navigator.pop(context); },
+                                          child: const Text("확인")
+                                        )
+                                      )
+                                    ],
+                                  );
+                                }
+                              );
                               return;
                             }
-                            info.putUserId(_tempId);
-                            info.putPassword(_tempPw);
-                            info.putUserName(_userName);
-                            info.putDormitory(_dormitory);
+                            if(_tempUser!['password'] != _tempPw){
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: const Text("비밀번호가 유효하지 않습니다"),
+                                      actions: [
+                                        Center(
+                                            child: ElevatedButton(
+                                                onPressed: (){ Navigator.pop(context); },
+                                                child: const Text("확인")
+                                            )
+                                        )
+                                      ],
+                                    );
+                                  }
+                              );
+                              return;
+                            }
+                            userInfo.putUserId(_tempUser!['userId']);
+                            userInfo.putPassword(_tempUser!['password']);
+                            userInfo.putUserName(_tempUser!['userName']);
+                            userInfo.putDormitory(_tempUser!['dormitory']);
+                            userInfo.putCanReservation(_tempUser!['canReservation']);
+                            userInfo.putMachineNum(_tempUser!['machineNum']);
+                            userInfo.putStartTime(_tempUser!['startTime']);
+                            userInfo.putEndTime(_tempUser!['endTime']);
                             Navigator.push(context, MaterialPageRoute(
                                 builder: (context) => HomePage())
                             );

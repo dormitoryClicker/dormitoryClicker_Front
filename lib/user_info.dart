@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 
 class UserInfo extends ChangeNotifier{
   String _userName = "", _userId = "", _password = "", _dormitory = "";
-  int _macNumber = 0;
+  bool _canReservation = true;
+  String _machineNum = "";
+  DateTime? _startTime;
+  DateTime? _endTime;
 
   String getUserName() { return _userName; }
   String getUserId(){ return _userId; }
   String getPassword(){ return _password; }
   String getDormitory(){ return _dormitory; }
-  int getMacNumber() { return _macNumber; }
+  bool getCanReservation(){ return _canReservation; }
+  String getMachineNum() { return _machineNum; }
+  DateTime? getStartTime(){ return _startTime; }
+  DateTime? getEndTime(){ return _endTime; }
 
   void putUserName(String name){
     _userName = name;
@@ -26,8 +32,28 @@ class UserInfo extends ChangeNotifier{
     _dormitory = dormitory;
     notifyListeners();
   }
-  void putMacNumber(int number){
-    _macNumber = number;
+  void putCanReservation(bool flag){
+    _canReservation = flag;
+    notifyListeners();
+  }
+  void putMachineNum(String number){
+    _machineNum = number;
+    notifyListeners();
+  }
+  void putStartTime(String startTime){
+    if(startTime == "") {
+      _startTime = null;
+    } else {
+      _startTime = DateTime.parse(startTime);
+    }
+    notifyListeners();
+  }
+  void putEndTime(String endTime){
+    if(endTime == "") {
+      _endTime = null;
+    } else {
+      _endTime = DateTime.parse(endTime);
+    }
     notifyListeners();
   }
 

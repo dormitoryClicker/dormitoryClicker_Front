@@ -1,40 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:timer_builder/timer_builder.dart';
+import 'dorm_data.dart';
 import 'user_info.dart';
 import 'my_page.dart';
 import 'reserve_page.dart';
-
-class MyIcons{
-  static const IconData local_laundry_service = const IconData(
-      0xe398,
-      fontFamily: 'MaterialIcons'
-  );
-
-  static const IconData brightness = const IconData(
-      0xf0575,
-      fontFamily: 'MaterialIcons'
-  );
-
-  static IconData MachineIcon({required int Index}) {
-    Index = Index + 1;
-    IconData machineIcon =  local_laundry_service;
-    if(Index > 4) {
-      machineIcon = brightness;
-      return machineIcon;
-    }
-    return machineIcon;
-  }
-}
-
-String MachineName({required int Index}) {
-  Index = Index + 1;
-  String machineName = '세탁기 ${Index}';
-  if(Index > 4) {
-    machineName = '건조기 ${Index - 4}';
-    return machineName;
-  }
-  return machineName;
-}
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -44,22 +14,73 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var info;
+
+  var userInfo;
+  var dormData;
+
+  static const IconData washIcon = IconData(
+      0xe398,
+      fontFamily: 'MaterialIcons'
+  );
+
+  static const IconData dryIcon = IconData(
+      0xf0575,
+      fontFamily: 'MaterialIcons'
+  );
+
+  List<Map> tempDormList = List<Map>.empty(growable: true);
 
   @override
   Widget build(BuildContext context) {
-    info = Provider.of<UserInfo>(context, listen: true);
-    final List<String> M_Name = <String>[
-      '세탁기 1', '세탁기 2', '세탁기 3', '세탁기 4', '건조기 1', '건조기 2'];
-    final List<String> Time_S = <String>[
-      '22-11-09 06:00', '22-11-09 08:00', '22-11-09 10:00','22-11-09 12:00', '미사용중', '미사용중'];
-    final List<String> Time_E = <String>[
-      '22-11-09 08:00', '22-11-09 10:00', '22-11-09 12:00','22-11-09 14:00', '미사용중', '미사용중'];
+    userInfo = Provider.of<UserInfo>(context, listen: true);
+    dormData = Provider.of<DormData>(context, listen: true);
 
+    tempDormList = dormData.machines[userInfo.getDormitory()];
+
+    String getMachineName(int index) {
+      String machineNum = dormData.machines[userInfo.getDormitory()][index]['machineNum'];
+      if(machineNum.startsWith('W')){
+        return "세탁 ${machineNum[1]}";
+      } else {
+        return "건조 ${machineNum[1]}";
+      }
+    }
+
+    IconData getMachineIcon(int index) {
+      String machineNum = dormData.machines[userInfo.getDormitory()][index]['machineNum'];
+      if(machineNum.startsWith('W')){
+        return washIcon;
+      } else {
+        return dryIcon;
+      }
+    }
+
+    String getEarliestReservation(int index){
+      List<String> startTimeList = dormData.machines[userInfo.getDormitory()][index]['startTime'];
+      List<String> endTimeList = dormData.machines[userInfo.getDormitory()][index]['endTime'];
+      if(startTimeList.isNotEmpty) {
+        String earliestStartTime = startTimeList[0];
+        int check = 0;
+        for (int i = 1; i < startTimeList.length; i++) {
+          check = DateTime.parse(earliestStartTime).difference(DateTime.parse(startTimeList[i])).inSeconds;
+          if(check < 0) {
+            if(DateTime.now().difference(DateTime.parse(earliestStartTime)).inSeconds > 0){
+              earliestStartTime = startTimeList[i];
+            } else {
+              continue;
+            }
+          }
+          else earliestStartTime = startTimeList[i];
+        }
+        int earliestTimeIndex = startTimeList.indexOf(earliestStartTime);
+        return "$earliestStartTime  ~  ${endTimeList[earliestTimeIndex]}";
+      }
+      return "예약 없음";
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Home"),
+        title: Text(userInfo.getDormitory()),
         centerTitle: true,
         elevation: 0.0,
       ),
@@ -68,21 +89,15 @@ class _HomePageState extends State<HomePage> {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              accountName: const Text("TestName"),
-              accountEmail: const Text("TestAccount@kumoh.ac.kr"),
-              currentAccountPicture: const CircleAvatar(
-                backgroundColor: Colors.white,
-                backgroundImage: null,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.blue[300],
-              ),
+              accountName: Text(userInfo.getUserName()),
+              accountEmail: Text(userInfo.getUserId()),
+              decoration: BoxDecoration(color: Colors.blue[300]),
             ),
             ListTile(
-              title: const Text("HOME"),
+              title: const Text("홈"),
               onTap: () {
-                Navigator.push(context, new MaterialPageRoute(
-                    builder: (context) => new HomePage())
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => HomePage())
                 );
               },
               trailing: const Icon(Icons.arrow_forward_ios),
@@ -90,8 +105,8 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               title: const Text("마이페이지"),
               onTap: () {
-                Navigator.push(context, new MaterialPageRoute(
-                    builder: (context) => new MyPage())
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => MyPage())
                 );
               },
               trailing: const Icon(Icons.arrow_forward_ios),
@@ -99,7 +114,9 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               title: const Text("문의/건의"),
               onTap: () {
-                print("");
+                /*************************************/
+                /**************이메일 API*************/
+                /*************************************/
               },
               trailing: const Icon(Icons.arrow_forward_ios),
             ),
@@ -111,26 +128,90 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            Flexible(
-              flex: 2,
-              fit: FlexFit.tight,
+            Container(
+              margin: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(10.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Container(
-                margin: const EdgeInsets.all(10.0),
-                padding: const EdgeInsets.all(15.0),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Column(
-                  children: <Widget>[
+                alignment: Alignment.center,
+                child: Row(
+                  children: [
                     Flexible(
-                      flex: 1,
                       fit: FlexFit.tight,
-                      child: Text('< ${info.getDormitory()} 예약 선택페이지 >', textAlign: TextAlign.center,),
+                      flex: 1,
+                      child: Column(
+                        children: const [
+                          Icon(Icons.sunny),
+                          Text("일", textAlign: TextAlign.center)
+                        ],
+                      )
+                    ),
+                    Flexible(
+                        fit: FlexFit.tight,
+                        flex: 1,
+                        child: Column(
+                          children: const [
+                            Icon(Icons.sunny),
+                            Text("월", textAlign: TextAlign.center)
+                          ],
+                        )
+                    ),
+                    Flexible(
+                        fit: FlexFit.tight,
+                        flex: 1,
+                        child: Column(
+                          children: const [
+                            Icon(Icons.cloud),
+                            Text("화", textAlign: TextAlign.center)
+                          ],
+                        )
+                    ),
+                    Flexible(
+                        fit: FlexFit.tight,
+                        flex: 1,
+                        child: Column(
+                          children: const [
+                            Icon(Icons.cloudy_snowing),
+                            Text("수", textAlign: TextAlign.center)
+                          ],
+                        )
+                    ),
+                    Flexible(
+                        fit: FlexFit.tight,
+                        flex: 1,
+                        child: Column(
+                          children: const [
+                            Icon(Icons.cloud),
+                            Text("목", textAlign: TextAlign.center)
+                          ],
+                        )
+                    ),
+                    Flexible(
+                        fit: FlexFit.tight,
+                        flex: 1,
+                        child: Column(
+                          children: const [
+                            Icon(Icons.sunny),
+                            Text("금", textAlign: TextAlign.center)
+                          ],
+                        )
+                    ),
+                    Flexible(
+                        fit: FlexFit.tight,
+                        flex: 1,
+                        child: Column(
+                          children: const [
+                            Icon(Icons.sunny_snowing),
+                            Text("토", textAlign: TextAlign.center)
+                          ],
+                        )
                     ),
                   ],
                 ),
-              ),
+              )
             ),
 
             Flexible(
@@ -141,62 +222,57 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.all(15.0),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.black),
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
                   children: <Widget>[
-                    Expanded(
+                    const Flexible(
                       flex: 1,
-                      //fit: FlexFit.tight,
-                      child: Text(' <  기기를 선택해주세요.  >'),
+                      fit: FlexFit.tight,
+                      child: Text('< 기기 선택 >')
                     ),
-                    Expanded(
-                      flex: 8,
-                      child: Container(
-                        child: GridView.builder(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            mainAxisSpacing: 3,
-                            crossAxisSpacing: 3,
-                            childAspectRatio: 3/6,
-                          ),
-                          itemCount: 6,
-                          itemBuilder: (BuildContext context, int index){
-                            return Card(
-                              margin: const EdgeInsets.all(8),
-                              elevation: 2,
-                              child: GridTile(
-                                //header: GridTileBar(
-                                //  backgroundColor: Colors.black26,
-                                //  title: const Text('header'),
-                                //  subtitle: Text('Top'),
-                                //),
-                                footer: Container(
-                                  height: 40,
-                                  child: GridTileBar(
+                    Flexible(
+                      flex: 9,
+                      fit: FlexFit.tight,
+                      child: GridView.builder(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          mainAxisSpacing: 3,
+                          crossAxisSpacing: 3,
+                          childAspectRatio: 3/5,
+                        ),
+                        itemCount: 6,
+                        itemBuilder: (BuildContext context, int index){
+                          return Card(
+                            margin: const EdgeInsets.all(2),
+                            elevation: 2,
+                            child: GridTile(
+                              footer: Container(
+                                height: 40,
+                                child: GridTileBar(
                                     backgroundColor: Colors.black38,
-                                    title: Text(
-                                      MachineName(Index: index),
-                                      overflow: TextOverflow.ellipsis,
-
-                                    ),
-                                    //subtitle: Text('bottom'),
-                                  ),
-                                ),
-                                child: IconButton(
-                                  icon: Icon(MyIcons.MachineIcon(Index: index), size: 50,),
-                                  onPressed: (){
-                                    info.putMacNumber(index);
-                                    Navigator.push(context, MaterialPageRoute(
-                                        builder: (context) => ReservePage())
-                                    );
-                                  },
+                                    title: Text(getMachineName(index), textAlign: TextAlign.center)
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ),
+                              child: IconButton(
+                                icon: Icon(getMachineIcon(index), size: 50,),
+                                onPressed: (){
+                                  userInfo.putMachineNum((index) {
+                                    if(index <= 3){
+                                      return 'W${index + 1}';
+                                    } else {
+                                      return 'D${index - 3}';
+                                    }
+                                  });
+                                  Navigator.push(context, MaterialPageRoute(
+                                      builder: (context) => ReservePage())
+                                  );
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      )
                     ),
                   ],
                 ),
@@ -211,27 +287,35 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.all(15.0),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.black),
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
                   children: <Widget>[
                     const Flexible(
                       flex: 1,
                       fit: FlexFit.tight,
-                      child: Text('< 기기 정보 >\n',
+                      child: Text('< 가장 빠른 예약 정보 >',
                         textAlign: TextAlign.center,
                       ),
                     ),
                     Flexible(
                       flex: 5,
                       fit: FlexFit.tight,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(2),
-                        itemCount: M_Name.length,
-                        itemBuilder: (BuildContext context, int index){
-                          return _buildItem(M_Name[index],Time_S[index], Time_E[index] ,index);
-                        },
-                      ),
+                      child: TimerBuilder.periodic(
+                        const Duration(minutes: 10),
+                        builder: (context) {
+                          return ListView.builder(
+                            padding: const EdgeInsets.all(2),
+                            itemCount: 6,
+                            itemBuilder: (BuildContext context, int index){
+                              return _buildItem(
+                                  getMachineName(index), getMachineIcon(index),
+                                  getEarliestReservation(index)
+                              );
+                            },
+                          );
+                        }
+                      )
                     ),
                   ],
                 ),
@@ -243,20 +327,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildItem(String m_name, String time_s, String time_e, int index) {
+  Widget _buildItem(String machineName, IconData machineIcon, String earliestTime) {
     return Card(
       elevation: 2,
       child: ListTile(
         title: Text(
-          m_name,
-          style: const TextStyle(
-              fontWeight: FontWeight.w600
-          ),
+          machineName,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
-        subtitle: Text('${time_s}   ~   ${time_e}'),
-        leading: Icon(
-          MyIcons.MachineIcon(Index: index),
-        ),
+        subtitle: Text(earliestTime),
+        leading: Icon(machineIcon),
       ),
     );
   }
