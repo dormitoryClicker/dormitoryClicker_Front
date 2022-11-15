@@ -101,7 +101,7 @@ class _ReservePageState extends State<ReservePage> {
       dDay_2 = false;
 
       delPrintList();
-      //getPrintList(day: MyTime.set_Day);
+      getPrintList(day: MyTime.set_Day);
 
     }
     else if (value == 1) {
@@ -112,7 +112,7 @@ class _ReservePageState extends State<ReservePage> {
       dDay_2 = false;
 
       delPrintList();
-      //getPrintList(day: MyTime.set_Day);
+      getPrintList(day: MyTime.set_Day);
     }
     else if (value == 2) {
       MyTime.set_Day = MyTime.getToday(daySelect: value);
@@ -122,7 +122,7 @@ class _ReservePageState extends State<ReservePage> {
       dDay_2 = true;
 
       delPrintList();
-      //getPrintList(day: MyTime.set_Day);
+      getPrintList(day: MyTime.set_Day);
     }
     setState(() {
       isSelected = [dDay_0, dDay_1, dDay_2];
@@ -243,7 +243,6 @@ class _ReservePageState extends State<ReservePage> {
   Widget build(BuildContext context) {
     userInfo = Provider.of<UserInfo>(context, listen: true);
 
-    getPrintList(day: MyTime.set_Day);
 
     return Scaffold(
       body: Column(
