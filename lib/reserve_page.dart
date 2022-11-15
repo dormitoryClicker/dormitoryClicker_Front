@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'user_info.dart';
 
 class MyTime{
-  static String set_Day = '';
+  static String set_Day = getToday(daySelect: 0);
 
   static String start_Hour = '00';
   static bool select_stHour = false;
@@ -17,6 +17,26 @@ class MyTime{
 
   static String end_Min = '00';
   static bool select_edMin = false;
+
+  static String getToday({required int daySelect}) {
+    var now = DateTime.now();
+    DateTime day = DateTime(now.year, now.month, now.day + daySelect);
+    DateFormat formatter = DateFormat('yyyy-MM-dd');
+    String strToday = formatter.format(day);
+    return strToday;
+  }
+
+  static void popping() {
+    set_Day = getToday(daySelect: 0);
+    start_Hour = '00';
+    select_stHour = false;
+    end_Hour = '00';
+    select_edHour = false;
+    start_Min = '00';
+    select_stMin = false;
+    end_Min = '00';
+    select_edMin = false;
+  }
 }
 
 class ReservePage extends StatefulWidget {
@@ -28,28 +48,22 @@ class ReservePage extends StatefulWidget {
 
 class _ReservePageState extends State<ReservePage> {
 
-  final GlobalKey<AnimatedListState> _animatedlistKey = GlobalKey<AnimatedListState>();
-  List<String> R_items = [
-    'item1',
-    'item2',
-    'item3',
-    'item4',
-    'item5',
-  ];
+  //final GlobalKey<AnimatedListState> _animatedlistKey = GlobalKey<AnimatedListState>();
   List<String> R_S_times = [
-    'yy-mm-dd 06:00',
-    'yy-mm-dd 08:00',
-    'yy-mm-dd 10:00',
-    'yy-mm-dd 12:00',
-    'yy-mm-dd 14:00',
+    "2022-11-15 06:00:00",
+    "2022-11-15 08:00:00",
+    "2022-11-16 10:00:00",
+    "2022-11-16 12:00:00",
+    "2022-11-17 14:00:00",
   ];
   List<String> R_E_times = [
-    'yy-mm-dd 08:00',
-    'yy-mm-dd 10:00',
-    'yy-mm-dd 12:00',
-    'yy-mm-dd 14:00',
-    'yy-mm-dd 16:00',
+    "2022-11-15 08:00:00",
+    "2022-11-15 10:00:00",
+    "2022-11-16 12:00:00",
+    "2022-11-16 14:00:00",
+    "2022-11-17 16:00:00",
   ];
+
 
   final List<String> _valueList_Hour = [
     '00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11',
@@ -66,10 +80,12 @@ class _ReservePageState extends State<ReservePage> {
   String _selectedValue_Minute_E = '00';
 
   String result = '';
-  bool dDay_0 = true;
+  bool dDay_0 = false;
   bool dDay_1 = false;
   bool dDay_2 = false;
   late List<bool> isSelected;
+  List<String> printList_S = List<String>.empty(growable: true);
+  List<String> printList_E = List<String>.empty(growable: true);
 
   void initState(){
     isSelected = [dDay_0, dDay_1, dDay_2];
@@ -78,25 +94,35 @@ class _ReservePageState extends State<ReservePage> {
 
   void toggleSelect(value) {
     if (value == 0) {
-      MyTime.set_Day = getToday(daySelect: value);
+      MyTime.set_Day = MyTime.getToday(daySelect: value);
 
       dDay_0 = true;
       dDay_1 = false;
       dDay_2 = false;
+
+      delPrintList();
+      //getPrintList(day: MyTime.set_Day);
+
     }
     else if (value == 1) {
-      MyTime.set_Day = getToday(daySelect: value);
+      MyTime.set_Day = MyTime.getToday(daySelect: value);
 
       dDay_0 = false;
       dDay_1 = true;
       dDay_2 = false;
+
+      delPrintList();
+      //getPrintList(day: MyTime.set_Day);
     }
     else if (value == 2) {
-      MyTime.set_Day = getToday(daySelect: value);
+      MyTime.set_Day = MyTime.getToday(daySelect: value);
 
       dDay_0 = false;
       dDay_1 = false;
       dDay_2 = true;
+
+      delPrintList();
+      //getPrintList(day: MyTime.set_Day);
     }
     setState(() {
       isSelected = [dDay_0, dDay_1, dDay_2];
@@ -128,15 +154,6 @@ class _ReservePageState extends State<ReservePage> {
     return '총 예약시간:    $diffHr시간  $diffMin분';
   }
 
-
-  String getToday({required int daySelect}) {
-    var now = DateTime.now();
-    DateTime day = DateTime(now.year, now.month, now.day + daySelect);
-    DateFormat formatter = DateFormat('yyyy-MM-dd');
-    String strToday = formatter.format(day);
-    return strToday;
-  }
-
   String message = '';
   String my_r_time = '';
 
@@ -162,7 +179,6 @@ class _ReservePageState extends State<ReservePage> {
             message = '3시간을 초과합니다.';
           }
           else{
-            userInfo.putCanReservation(false);
             userInfo.putStartTime(DateFormat('yyyy-MM-dd HH:mm:00').format(_newStartTime));
             userInfo.putEndTime(DateFormat('yyyy-MM-dd HH:mm:00').format(_newEndTime));
             message = '예약되었습니다.';
@@ -172,6 +188,7 @@ class _ReservePageState extends State<ReservePage> {
                 "${userInfo.getEndTime().month}월 ${userInfo.getEndTime().day}일 "
                 "${userInfo.getEndTime().hour}시 ${userInfo.getEndTime().minute}분";
             message += "\n\n${my_r_time}";
+            userInfo.putCanReservation(false);
           }
         }
         else {
@@ -190,8 +207,34 @@ class _ReservePageState extends State<ReservePage> {
     }
   }
 
-  void getCancled () {
+  void getCancled() {
     userInfo.putCanReservation(true);
+  }
+
+  void getPrintList({required String day}) {
+    int print_i = 0;
+    for(int i = 0 ; i < R_S_times.length ; i++ ) {
+      if (DateTime.parse(R_S_times[i]).month.toString() == DateTime.parse(day).month.toString() &&
+          DateTime.parse(R_S_times[i]).day.toString() == DateTime.parse(day).day.toString() ){
+        printList_S.add(R_S_times[i]);
+        printList_E.add(R_E_times[i]);
+        print_i += 1;
+      }
+      else {}
+    }
+  }
+
+  void delPrintList() {
+    printList_S.clear();
+    printList_E.clear();
+  }
+
+  void popping_drop() {
+    _selectedValue_Hour_S = '00';
+    _selectedValue_Minute_S = '00';
+
+    _selectedValue_Hour_E = '00';
+    _selectedValue_Minute_E = '00';
   }
 
   var userInfo;
@@ -199,7 +242,8 @@ class _ReservePageState extends State<ReservePage> {
   @override
   Widget build(BuildContext context) {
     userInfo = Provider.of<UserInfo>(context, listen: true);
-    MyTime.set_Day = getToday(daySelect: 0);
+
+    getPrintList(day: MyTime.set_Day);
 
     return Scaffold(
       body: Column(
@@ -218,6 +262,8 @@ class _ReservePageState extends State<ReservePage> {
                       size: 25.0,
                     ),
                     onPressed: () {
+                      popping_drop();
+                      MyTime.popping();
                       Navigator.pop(context);
                     },
                   ),
@@ -295,21 +341,21 @@ class _ReservePageState extends State<ReservePage> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text('Day\n(${getToday(daySelect: 0)})',
+                        child: Text('Day\n(${MyTime.getToday(daySelect: 0)})',
                           //style: TextStyle(fontSize: 18),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text('Day +1\n(${getToday(daySelect: 1)})',
+                        child: Text('Day +1\n(${MyTime.getToday(daySelect: 1)})',
                           //style: TextStyle(fontSize: 18),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text('Day +2\n(${getToday(daySelect: 2)})',
+                        child: Text('Day +2\n(${MyTime.getToday(daySelect: 2)})',
                           //style: TextStyle(fontSize: 18),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -658,11 +704,12 @@ class _ReservePageState extends State<ReservePage> {
                 border: Border.all(color: Colors.black),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: AnimatedList(
-                key: _animatedlistKey,
-                initialItemCount: R_items.length,
-                itemBuilder: (context, index, animation) {
-                  return _buildItem(R_items[index], R_S_times[index], R_E_times[index], animation, index);
+              child: ListView.builder(
+                itemCount: printList_S.length,
+                itemBuilder: (BuildContext context, int index) {
+                  print(printList_S.length);
+                  print(index);
+                  return _buildItem(printList_S[index], printList_E[index], index);
                 },
               ),
             ),
@@ -672,22 +719,18 @@ class _ReservePageState extends State<ReservePage> {
     );
   }
 
-  Widget _buildItem(String item, String r_s_time, String r_e_time, Animation<double> animation, int index) {
-    return SlideTransition(
-      position: animation.drive(Tween(begin: const Offset(-1.0,0.0), end: const Offset(0.0,0.0))),
-      child: Card(
-        elevation: 2,
+  Widget _buildItem(String printlist_s, String printlist_e, int index) {
+     return Card(
+        elevation: 3,
         child: ListTile(
           title: Text(
-            item,
+            '${printlist_s}    ~    ${printlist_e}',
             style: const TextStyle(
                 fontWeight: FontWeight.w600
             ),
           ),
-          subtitle: Text('${r_s_time}  ~  ${r_e_time}'),
           leading: const CircleAvatar(backgroundColor: Colors.amber,),
         ),
-      ),
-    );
+      );
   }
 }
