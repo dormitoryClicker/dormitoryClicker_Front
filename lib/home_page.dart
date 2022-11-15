@@ -257,13 +257,12 @@ class _HomePageState extends State<HomePage> {
                               child: IconButton(
                                 icon: Icon(getMachineIcon(index), size: 50,),
                                 onPressed: (){
-                                  userInfo.putMachineNum((index) {
-                                    if(index <= 3){
-                                      return 'W${index + 1}';
-                                    } else {
-                                      return 'D${index - 3}';
-                                    }
-                                  });
+                                  if(index <= 3) {
+                                    userInfo.putMachineNum("W${index + 1}");
+                                  } else {
+                                    userInfo.putMachineNum("D${index - 3}");
+                                  }
+
                                   Navigator.push(context, MaterialPageRoute(
                                       builder: (context) => ReservePage())
                                   );

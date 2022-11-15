@@ -151,7 +151,7 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                         Flexible(
                           fit: FlexFit.tight,
-                          flex: 1,
+                          flex: 2,
                           child: Container(
                             alignment: Alignment.centerRight,
                             child: DropdownButton(
@@ -173,7 +173,7 @@ class _SettingPageState extends State<SettingPage> {
                         const SizedBox(height: 12.0),
                         Flexible(
                           fit: FlexFit.tight,
-                          flex: 1,
+                          flex: 2,
                           child: Container(
                             alignment: Alignment.center,
                             child: DropdownButton(

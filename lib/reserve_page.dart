@@ -128,7 +128,6 @@ class _ReservePageState extends State<ReservePage> {
     return '총 예약시간:    $diffHr시간  $diffMin분';
   }
 
-  int daySelect = 0;
 
   String getToday({required int daySelect}) {
     var now = DateTime.now();
@@ -138,84 +137,61 @@ class _ReservePageState extends State<ReservePage> {
     return strToday;
   }
 
-  String? getMName({required int index}) {
-    if(index <= 3)
-      return '세탁기#${index + 1}';
-    else if(index <= 5)
-      return '건조기#${index - 3}';
-    return null;
-  }
-
   String message = '';
   String my_r_time = '';
 
-  void getReserve ({required String day, required String s_hour, required String s_minute,
-    required String e_hour, required String e_minute}) {
-
-    int sH = int.parse(s_hour);
-    int sM = int.parse(s_minute);
-    int eH = int.parse(e_hour);
-    int eM = int.parse(e_minute);
+  void getReserve ({required String day, required DateTime startTime, required DateTime endTime}) {
+    int sH = int.parse(MyTime.start_Hour);
+    int sM = int.parse(MyTime.start_Min);
+    int eH = int.parse(MyTime.end_Hour);
+    int eM = int.parse(MyTime.end_Min);
 
     int diff = (eH * 60 + eM * 1) - (sH * 60 + sM * 1);
-    int diffHr = diff ~/ 60;
-    int diffMin = diff % 60;
 
-    int reserved = userInfo.getReserved();
+    DateTime _newStartTime = DateTime.parse('$day ${MyTime.start_Hour}:${MyTime.start_Min}:00');
+    DateTime _newEndTime = DateTime.parse('$day ${MyTime.end_Hour}:${MyTime.end_Min}:00');
 
-    DateTime _startTime = DateTime.parse('$day $s_hour:$s_minute:00');
-    DateTime _endTime = DateTime.parse('$day $e_hour:$e_minute:00');
-
-    if(reserved == 0){  // 이미 예약을 하였는가?
+    if(userInfo.getCanReservation() == true){  // 예약을 할 수 있는가?
       if(MyTime.select_edHour == false && MyTime.select_edMin == false
           && MyTime.select_edHour == false && MyTime.select_edMin == false) {
-        print("시간을 지정해주세요.");
         message = '시간을 지정해주세요.';
       }
       else if (MyTime.select_edHour == true || MyTime.select_edMin == true) {
         if(diff >= 0){  // 합당한 총시간을 지정하였는가?
           if(diff > 180 ){  // 3시간 이상을 지정하였는가?
-            print("3시간을 초과합니다.");
             message = '3시간을 초과합니다.';
           }
           else{
-            print("예약이 가능합니다.");
-            userInfo.putReserved(1);
-            message = '예약이 가능합니다.';
-            my_r_time = "${_startTime.month}월 ${_startTime.day}일 "
-                "${_startTime.hour}시 ${_startTime.minute}분"
+            userInfo.putCanReservation(false);
+            userInfo.putStartTime(DateFormat('yyyy-MM-dd HH:mm:00').format(_newStartTime));
+            userInfo.putEndTime(DateFormat('yyyy-MM-dd HH:mm:00').format(_newEndTime));
+            message = '예약되었습니다.';
+            my_r_time = "${userInfo.getStartTime().month}월 ${userInfo.getStartTime().day}일 "
+                "${userInfo.getStartTime().hour}시 ${userInfo.getStartTime().minute}분"
                 " - "
-                "${_endTime.month}월 ${_endTime.day}일 "
-                "${_endTime.hour}시 ${_endTime.minute}분";
+                "${userInfo.getEndTime().month}월 ${userInfo.getEndTime().day}일 "
+                "${userInfo.getEndTime().hour}시 ${userInfo.getEndTime().minute}분";
             message += "\n\n${my_r_time}";
           }
         }
         else {
-          print("다시 시간을 지정해주세요.");
           message = '다시 시간을 지정해주세요.';
         }
       }
     }
-    else if (reserved == 1){
-      print("예약을 이미 하셨습니다.");
+    else {
       message = '예약을 이미 하셨습니다.';
-      my_r_time = "${_startTime.month}월 ${_startTime.day}일 "
-          "${_startTime.hour}시 ${_startTime.minute}분"
+      my_r_time = "${startTime.month}월 ${startTime.day}일 "
+          "${startTime.hour}시 ${startTime.minute}분"
           " - "
-          "${_endTime.month}월 ${_endTime.day}일 "
-          "${_endTime.hour}시 ${_endTime.minute}분";
+          "${endTime.month}월 ${endTime.day}일 "
+          "${endTime.hour}시 ${endTime.minute}분";
       message += "\n\n${my_r_time}";
     }
-
-    print("${_startTime.month}월 ${_startTime.day}일 "
-        "${_startTime.hour}시 ${_startTime.minute}분"
-        " - "
-        "${_endTime.month}월 ${_endTime.day}일 "
-        "${_endTime.hour}시 ${_endTime.minute}분");
   }
 
   void getCancled () {
-    userInfo.putReserved(0);
+    userInfo.putCanReservation(true);
   }
 
   var userInfo;
@@ -250,7 +226,7 @@ class _ReservePageState extends State<ReservePage> {
                   alignment: Alignment.topLeft,
                   padding: const EdgeInsets.only(top: 30.0),
                   child: Text(
-                    '${userInfo.getDormitory()} ${getMName(index: userInfo.getMachineNum())} 예약',
+                    '${userInfo.getDormitory()} ${userInfo.getMachineNum()} 예약',
                     style: TextStyle(color: Colors.lightBlue, fontSize: 20.0),
                   ),
                 )
@@ -535,8 +511,7 @@ class _ReservePageState extends State<ReservePage> {
                       children: <Widget>[
                         ElevatedButton(
                             onPressed: (){
-                              getReserve(day: MyTime.set_Day, s_hour: MyTime.start_Hour, s_minute: MyTime.start_Min,
-                                  e_hour: MyTime.end_Hour, e_minute: MyTime.end_Min);
+                              getReserve(day: MyTime.set_Day, startTime: userInfo.getStartTime(), endTime: userInfo.getEndTime());
                               showDialog(
                                 context: context,
                                 //barrierDismissible: false,
@@ -561,7 +536,7 @@ class _ReservePageState extends State<ReservePage> {
                         const Text('    '),
                         ElevatedButton(
                             onPressed: (){
-                              if(userInfo.getReserved() == 1){   // 예약이 있다면 기존 예약 취소
+                              if(userInfo.getCanReservation() == false){   // 예약이 있다면 기존 예약 취소
                                 showDialog(
                                     context: context,
                                     //barrierDismissible: false,
