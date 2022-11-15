@@ -251,9 +251,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             _dormitory = _dormFirst! + ' ' + _dormSecond!;
                             usersData.addUser(_userName, _userId, _password, _dormitory);
 
-                            Navigator.push(context, MaterialPageRoute(
-                                builder: (context) => const SignInPage())
-                            );
+                            Navigator.pushNamed(context, '/signin');
                           }
                         },
                         style: ButtonStyle(

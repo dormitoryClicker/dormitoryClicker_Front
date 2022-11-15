@@ -151,9 +151,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                         Flexible(
                           fit: FlexFit.tight,
-                          flex: 1,
+                          flex: 3,
                           child: Container(
-                            alignment: Alignment.centerRight,
+                            alignment: Alignment.center,
                             child: DropdownButton(
                               items: <String>['오름관', '푸름관'].map((value) {
                                 return DropdownMenuItem(
@@ -173,7 +173,7 @@ class _SettingPageState extends State<SettingPage> {
                         const SizedBox(height: 12.0),
                         Flexible(
                           fit: FlexFit.tight,
-                          flex: 1,
+                          flex: 2,
                           child: Container(
                             alignment: Alignment.center,
                             child: DropdownButton(

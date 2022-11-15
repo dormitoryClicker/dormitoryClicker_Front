@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:timer_builder/timer_builder.dart';
 import 'dorm_data.dart';
 import 'user_info.dart';
+import 'users_data.dart';
 import 'my_page.dart';
 import 'reserve_page.dart';
 
@@ -16,6 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   var userInfo;
+  var usersData;
   var dormData;
 
   static const IconData washIcon = IconData(
@@ -33,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     userInfo = Provider.of<UserInfo>(context, listen: true);
+    usersData = Provider.of<UsersData>(context, listen: true);
     dormData = Provider.of<DormData>(context, listen: true);
 
     tempDormList = dormData.machines[userInfo.getDormitory()];
@@ -96,18 +99,14 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               title: const Text("홈"),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => HomePage())
-                );
+                Navigator.pushNamed(context, '/');
               },
               trailing: const Icon(Icons.arrow_forward_ios),
             ),
             ListTile(
               title: const Text("마이페이지"),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => MyPage())
-                );
+                Navigator.pushNamed(context, '/mypage');
               },
               trailing: const Icon(Icons.arrow_forward_ios),
             ),
@@ -257,16 +256,12 @@ class _HomePageState extends State<HomePage> {
                               child: IconButton(
                                 icon: Icon(getMachineIcon(index), size: 50,),
                                 onPressed: (){
-                                  userInfo.putMachineNum((index) {
-                                    if(index <= 3){
-                                      return 'W${index + 1}';
-                                    } else {
-                                      return 'D${index - 3}';
-                                    }
-                                  });
-                                  Navigator.push(context, MaterialPageRoute(
-                                      builder: (context) => ReservePage())
-                                  );
+                                  if(index <= 3) {
+                                    userInfo.putMachineNum("W${index + 1}");
+                                  } else {
+                                    userInfo.putMachineNum("D${index - 3}");
+                                  }
+                                  Navigator.pushNamed(context, '/reservation');
                                 },
                               ),
                             ),

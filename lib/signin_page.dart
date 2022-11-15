@@ -177,9 +177,7 @@ class _SignInPageState extends State<SignInPage> {
                             userInfo.putMachineNum(_tempUser!['machineNum']);
                             userInfo.putStartTime(_tempUser!['startTime']);
                             userInfo.putEndTime(_tempUser!['endTime']);
-                            Navigator.push(context, MaterialPageRoute(
-                                builder: (context) => HomePage())
-                            );
+                            Navigator.pushNamed(context, '/');
                           }
                         },
                         style: ButtonStyle(
@@ -200,9 +198,7 @@ class _SignInPageState extends State<SignInPage> {
                             decoration: TextDecoration.underline),
                       ),
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => const SignUpPage())
-                        );
+                        Navigator.pushNamed(context, '/signup');
                       },
                     ),
                   ],

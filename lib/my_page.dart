@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:timer_builder/timer_builder.dart';
 import 'package:provider/provider.dart';
 import 'user_info.dart';
 import 'users_data.dart';
+import 'dorm_data.dart';
 import 'home_page.dart';
 import 'signin_page.dart';
 import 'setting_page.dart';
@@ -17,12 +19,14 @@ class MyPage extends StatefulWidget {
 class _MyPageState extends State<MyPage> {
   var userInfo;
   var usersData;
+  var dormData;
 
   @override
   Widget build(BuildContext context) {
 
     userInfo = Provider.of<UserInfo>(context, listen: true);
     usersData = Provider.of<UsersData>(context, listen: true);
+    dormData = Provider.of<DormData>(context, listen: true);
 
     DateTime tempStartTime = userInfo.getStartTime();
     DateTime tempEndTime = userInfo.getEndTime();
@@ -68,18 +72,14 @@ class _MyPageState extends State<MyPage> {
             ListTile(
               title: const Text("홈"),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => HomePage())
-                );
+                Navigator.pushNamed(context, '/');
               },
               trailing: const Icon(Icons.arrow_forward_ios),
             ),
             ListTile(
               title: const Text("마이페이지"),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => MyPage())
-                );
+                Navigator.pushNamed(context, '/mypage');
               },
               trailing: const Icon(Icons.arrow_forward_ios),
             ),
@@ -275,6 +275,12 @@ class _MyPageState extends State<MyPage> {
                               child: ElevatedButton(
                                 onPressed: (){
                                   usersData.deleteReservation(userInfo.getUserId());
+                                  dormData.deleteReservation(
+                                    userInfo.getDormitory(),
+                                    userInfo.getMachineNum(),
+                                    DateFormat('yyyy-MM-dd HH:mm:00').format(userInfo.getStartTime()),
+                                    DateFormat('yyyy-MM-dd HH:mm:00').format(userInfo.getEndTime())
+                                  );
                                   userInfo.putCanReservation(true);
                                   userInfo.putMachineNum("");
                                   userInfo.putStartTime("");
@@ -314,9 +320,7 @@ class _MyPageState extends State<MyPage> {
                     flex: 1,
                     child: IconButton(
                       onPressed: (){
-                        Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => SettingPage())
-                        );
+                        Navigator.pushNamed(context, '/setting');
                       },
                       icon: const Icon(Icons.settings)
                     )
@@ -334,9 +338,7 @@ class _MyPageState extends State<MyPage> {
                         userInfo.putMachineNum("");
                         userInfo.putStartTime("");
                         userInfo.putEndTime("");
-                        Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => SignInPage())
-                        );
+                        Navigator.pushNamed(context, '/signin');
                       },
                       icon: const Icon(Icons.logout)
                     )

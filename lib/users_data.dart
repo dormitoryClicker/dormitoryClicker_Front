@@ -9,12 +9,22 @@ class UsersData extends ChangeNotifier{
       'dormitory' : "오름관 1동",
       'canReservation' : false,
       'machineNum' : "W1",
-      'startTime' : "2022-11-14 03:22:00",
-      'endTime' : "2022-11-14 03:58:00"
+      'startTime' : "2022-11-17 15:20:00",
+      'endTime' : "2022-11-17 16:40:00"
     },
     {
       'userName' : "김남수",
       'userId' : "20180100",
+      'password' : "1234",
+      'dormitory' : "오름관 3동",
+      'canReservation' : true,
+      'machineNum' : "",
+      'startTime' : "",
+      'endTime' : ""
+    },
+    {
+      'userName' : "김광민",
+      'userId' : "20180088",
       'password' : "1234",
       'dormitory' : "오름관 3동",
       'canReservation' : true,
@@ -50,20 +60,36 @@ class UsersData extends ChangeNotifier{
   }
 
   void deleteReservation(String userId){
-    Map? user;
-    if ((user = findUser(userId)) != null) {
-      user!['canReservation'] = true;
-      user['machineNum'] = "";
-      user['startTime'] = "";
-      user['endTime'] = "";
+    for(int i = 0; i < users.length; i++) {
+      if (users[i]['userId'] == userId) {
+        users[i]['canReservation'] = true;
+        users[i]['machineNum'] = "";
+        users[i]['startTime'] = "";
+        users[i]['endTime'] = "";
+        break;
+      }
+    }
+    notifyListeners();
+  }
+
+  void addReservation(String userId, String machineNum, String startTime, String endTime){
+    for(int i = 0; i < users.length; i++) {
+      if (users[i]['userId'] == userId) {
+        users[i]['canReservation'] = true;
+        users[i]['machineNum'] = machineNum;
+        users[i]['startTime'] = startTime;
+        users[i]['endTime'] = endTime;
+        break;
+      }
     }
     notifyListeners();
   }
 
   void changeDormitory(String userId, String dormitory){
-    Map? user;
-    if ((user = findUser(userId)) != null) {
-      user!['dormitory'] = dormitory;
+    for(int i = 0; i < users.length; i++) {
+      if (users[i]['userId'] == userId) {
+        users[i]['dormitory'] = dormitory;
+      }
     }
     notifyListeners();
   }
