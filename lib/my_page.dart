@@ -330,15 +330,15 @@ class _MyPageState extends State<MyPage> {
                     flex: 1,
                     child: IconButton(
                       onPressed: (){
-                        userInfo.putUserId("");
-                        userInfo.putPassword("");
-                        userInfo.putUserName("");
-                        userInfo.putDormitory("");
-                        userInfo.putCanReservation(true);
-                        userInfo.putMachineNum("");
-                        userInfo.putStartTime("");
-                        userInfo.putEndTime("");
-                        Navigator.pushNamed(context, '/signin');
+                        // userInfo.putUserId("");
+                        // userInfo.putPassword("");
+                        // userInfo.putUserName("");
+                        // userInfo.putDormitory("");
+                        // userInfo.putCanReservation(true);
+                        // userInfo.putMachineNum("");
+                        // userInfo.putStartTime("");
+                        // userInfo.putEndTime("");
+                        Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
                       },
                       icon: const Icon(Icons.logout)
                     )

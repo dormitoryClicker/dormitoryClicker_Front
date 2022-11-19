@@ -252,7 +252,7 @@ class DormData extends ChangeNotifier{
           List<String> tempEndTime = machines[dormitory]![i]['endTime'];
           tempEndTime.add(endTime);
           machines[dormitory]![i]['endTime'] = tempEndTime;
-          break;
+          return;
         }
       }
     }

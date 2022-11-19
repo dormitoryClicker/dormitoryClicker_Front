@@ -177,7 +177,7 @@ class _SignInPageState extends State<SignInPage> {
                             userInfo.putMachineNum(_tempUser!['machineNum']);
                             userInfo.putStartTime(_tempUser!['startTime']);
                             userInfo.putEndTime(_tempUser!['endTime']);
-                            Navigator.pushNamed(context, '/');
+                            Navigator.pushReplacementNamed(context, '/');
                           }
                         },
                         style: ButtonStyle(

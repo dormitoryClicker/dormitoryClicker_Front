@@ -430,7 +430,9 @@ class _ReservePageState extends State<ReservePage> {
                                   alignment: Alignment.bottomRight,
                                   child: ElevatedButton(
                                     onPressed: (){
-
+                                      setState(() {
+                                        clearListView();
+                                      });
                                     },
                                     child: const Text("초기화"),
                                   ),
@@ -502,6 +504,11 @@ class _ReservePageState extends State<ReservePage> {
           setState(() {
             if(listViewState[flag][index] == 2){
               if(count == 0) {
+                for(int i = 0; i < index; i++){
+                  isEnableTile[flag][i] = false;
+                  listViewState[flag][i] = 0;
+                }
+
                 listViewState[flag][index] = 1;
                 selectedStartIndex = index;
                 isEnableTile[flag][index] = false;

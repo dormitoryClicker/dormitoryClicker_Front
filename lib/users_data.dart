@@ -75,7 +75,7 @@ class UsersData extends ChangeNotifier{
   void addReservation(String userId, String machineNum, String startTime, String endTime){
     for(int i = 0; i < users.length; i++) {
       if (users[i]['userId'] == userId) {
-        users[i]['canReservation'] = true;
+        users[i]['canReservation'] = false;
         users[i]['machineNum'] = machineNum;
         users[i]['startTime'] = startTime;
         users[i]['endTime'] = endTime;
