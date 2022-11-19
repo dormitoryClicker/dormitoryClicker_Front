@@ -31,6 +31,8 @@ class MyTime{
     startMin = '00';
     endHour = '00';
     endMin = '00';
+    isStartTimeSelected = false;
+    isEndTimeSelected = false;
   }
 }
 
@@ -48,8 +50,6 @@ class _ReservePageState extends State<ReservePage> {
   bool dDay_1 = false;
   bool dDay_2 = false;
   late List<bool> isSelected;
-  List<String> printList_S = List<String>.empty(growable: true);
-  List<String> printList_E = List<String>.empty(growable: true);
 
   void initState(){
     isSelected = [dDay_0, dDay_1, dDay_2];
@@ -63,9 +63,6 @@ class _ReservePageState extends State<ReservePage> {
       dDay_0 = true;
       dDay_1 = false;
       dDay_2 = false;
-
-      delPrintList();
-      getPrintList(day: MyTime.set_Day);
     }
     else if (value == 1) {
       MyTime.set_Day = MyTime.getToday(daySelect: value);
@@ -73,9 +70,6 @@ class _ReservePageState extends State<ReservePage> {
       dDay_0 = false;
       dDay_1 = true;
       dDay_2 = false;
-
-      delPrintList();
-      getPrintList(day: MyTime.set_Day);
     }
     else if (value == 2) {
       MyTime.set_Day = MyTime.getToday(daySelect: value);
@@ -83,34 +77,10 @@ class _ReservePageState extends State<ReservePage> {
       dDay_0 = false;
       dDay_1 = false;
       dDay_2 = true;
-
-      delPrintList();
-      getPrintList(day: MyTime.set_Day);
     }
     setState(() {
       isSelected = [dDay_0, dDay_1, dDay_2];
     });
-  }
-
-  void getPrintList({required String day}) {
-    int print_i = 0;
-    Map? tempMachine = dormData.findMachine(userInfo.getDormitory(), userInfo.getMachineNum());
-    List<String> tempStartTimeList = tempMachine!['startTime'];
-    List<String> tempEndTimeList = tempMachine['endTime'];
-    for(int i = 0 ; i < tempStartTimeList.length ; i++ ) {
-      if (DateTime.parse(tempStartTimeList[i]).month.toString() == DateTime.parse(day).month.toString() &&
-          DateTime.parse(tempStartTimeList[i]).day.toString() == DateTime.parse(day).day.toString() ){
-        printList_S.add(tempStartTimeList[i]);
-        printList_E.add(tempEndTimeList[i]);
-        print_i += 1;
-      }
-      else {}
-    }
-  }
-
-  void delPrintList() {
-    printList_S.clear();
-    printList_E.clear();
   }
   /**********************************************************************/
 
@@ -180,17 +150,105 @@ class _ReservePageState extends State<ReservePage> {
   ];
 
   int count = 0;
-
-  List<bool> isEnableTile = List.generate(48, (i) => true);
-  List<int> listViewState = List.generate(48, (i) => 2);
-
   int? selectedStartIndex;
   int? selectedEndIndex;
 
-  Color setListViewColor(int index){
-    if(listViewState[index] == 0) return Colors.black26;
-    else if(listViewState[index] == 1) return Colors.green;
-    else return Colors.white;
+  List<List<bool>> isEnableTile = [
+    List.generate(48, (i) => true),
+    List.generate(48, (i) => true),
+    List.generate(48, (i) => true)
+  ];
+  List<List<int>> listViewState = [
+    List.generate(48, (i) => 2),
+    List.generate(48, (i) => 2),
+    List.generate(48, (i) => 2)
+  ];
+
+  Color? setListViewColor(int index){
+    if (dDay_0 == true) {
+      if(listViewState[0][index] == 0) return Colors.black26;
+      else if(listViewState[0][index] == 1) return Colors.green;
+      else return Colors.white;
+    } else if (dDay_1 == true) {
+      if(listViewState[1][index] == 0) return Colors.black26;
+      else if(listViewState[1][index] == 1) return Colors.green;
+      else return Colors.white;
+    } else if (dDay_2 == true) {
+      if(listViewState[2][index] == 0) return Colors.black26;
+      else if(listViewState[2][index] == 1) return Colors.green;
+      else return Colors.white;
+    }
+    return null;
+  }
+
+  void clearListView(){
+    Map tempMachine = dormData.findMachine(userInfo.getDormitory(), userInfo.getMachineNum());
+    List<String> tempStartTime = tempMachine['startTime'];
+    List<String> tempEndTime = tempMachine['endTime'];
+    List<int> disableStartTimeList = List<int>.empty(growable: true);
+    List<int> disableEndTimeList = List<int>.empty(growable: true);
+
+    for(int i = 0; i < tempStartTime.length; i++){
+      for(int j = 0; j < startTimeList.length; j++){
+        if(tempStartTime[i][8] + tempStartTime[i][9] == MyTime.set_Day[8] + MyTime.set_Day[9]
+            && tempStartTime[i][11] + tempStartTime[i][12] == startTimeList[j][0] + startTimeList[j][1]
+            && tempStartTime[i][14] + tempStartTime[i][15] == startTimeList[j][4] + startTimeList[j][5]){
+          disableStartTimeList.add(j);
+        }
+      }
+    }
+    for(int i = 0; i < tempEndTime.length; i++){
+      for(int j = 0; j < endTimeList.length; j++){
+        if(tempEndTime[i][8] + tempEndTime[i][9] == MyTime.set_Day[8] + MyTime.set_Day[9]
+            && tempEndTime[i][11] + tempEndTime[i][12] == endTimeList[j][0] + endTimeList[j][1]
+            && tempEndTime[i][14] + tempEndTime[i][15] == endTimeList[j][4] + endTimeList[j][5]){
+          disableEndTimeList.add(j);
+        }
+      }
+    }
+
+    count = 0;
+    selectedStartIndex = null;
+    selectedEndIndex = null;
+
+    for(int i = 0; i < startTimeList.length; i++){
+      if (dDay_0 == true) {
+        isEnableTile[0][i] = true;
+        listViewState[0][i] = 2;
+      } else if (dDay_1 == true) {
+        isEnableTile[1][i] = true;
+        listViewState[1][i] = 2;
+      } else if (dDay_2 == true) {
+        isEnableTile[2][i] = true;
+        listViewState[2][i] = 2;
+      }
+    }
+
+    for(int i = 0; i < disableStartTimeList.length; i++){
+      for(int j = disableStartTimeList[i]; j <= disableEndTimeList[i]; j++){
+        if (dDay_0 == true) {
+          isEnableTile[0][j] = false;
+          listViewState[0][j] = 0;
+
+          int nowTime = int.parse(DateTime.now().hour.toString()) * 60 + int.parse(DateTime.now().minute.toString());
+
+          for(int k = 0; k < isEnableTile[0].length; k++){
+            int tempHour = int.parse(startTimeList[k][0] + startTimeList[k][1]);
+            int tempMin = int.parse(startTimeList[k][4] + startTimeList[k][5]);
+            if(tempHour * 60 + tempMin <= nowTime){
+              isEnableTile[0][k] = false;
+              listViewState[0][k] = 0;
+            }
+          }
+        } else if (dDay_1 == true) {
+          isEnableTile[1][j] = false;
+          listViewState[1][j] = 0;
+        } else if (dDay_2 == true) {
+          isEnableTile[2][j] = false;
+          listViewState[2][j] = 0;
+        }
+      }
+    }
   }
   /**********************************************************************/
 
@@ -292,7 +350,10 @@ class _ReservePageState extends State<ReservePage> {
                       children: [
                         ToggleButtons(
                           isSelected: isSelected,
-                          onPressed: toggleSelect,
+                          onPressed: (value){
+                            toggleSelect(value);
+                            clearListView();
+                          },
                           children: [
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -434,13 +495,16 @@ class _ReservePageState extends State<ReservePage> {
           ),
         ),
         tileColor: setListViewColor(index),
-        onTap: isEnableTile[index] ? (){
+        onTap: ((dDay_0 == true) ?
+        isEnableTile[0][index] : (dDay_1 == true) ?
+        isEnableTile[1][index] : isEnableTile[2][index]) ? (){
+          int flag = (dDay_0 == true) ? 0 : (dDay_1 == true) ? 1 : 2;
           setState(() {
-            if(listViewState[index] == 2){
+            if(listViewState[flag][index] == 2){
               if(count == 0) {
-                listViewState[index] = 1;
+                listViewState[flag][index] = 1;
                 selectedStartIndex = index;
-                isEnableTile[index] = false;
+                isEnableTile[flag][index] = false;
                 MyTime.isStartTimeSelected = true;
                 count++;
               }
@@ -473,9 +537,9 @@ class _ReservePageState extends State<ReservePage> {
                   );
                 }
                 else {
-                  listViewState[index] = 1;
+                  listViewState[flag][index] = 1;
                   selectedEndIndex = index;
-                  isEnableTile[index] = false;
+                  isEnableTile[flag][index] = false;
                   MyTime.isEndTimeSelected = true;
                   MyTime.startHour = startTime[0] + startTime[1];
                   MyTime.startMin = startTime[4] + startTime[5];
@@ -483,14 +547,14 @@ class _ReservePageState extends State<ReservePage> {
                   MyTime.endMin = endTime[4] + endTime[5];
                   count++;
 
-                  for(int i = 0; i < 48; i++) { isEnableTile[i] = false; }
+                  for(int i = 0; i < 48; i++) { isEnableTile[flag][i] = false; }
                   for(int? i = selectedStartIndex! + 1; i! < selectedEndIndex!; i++){
-                    listViewState[i] = 1;
+                    listViewState[flag][i] = 1;
                   }
                 }
               }
-            } else if(listViewState[index] == 1) {
-              listViewState[index] = 1;
+            } else if(listViewState[flag][index] == 1) {
+              listViewState[flag][index] = 1;
             }
           });
         } : null,
