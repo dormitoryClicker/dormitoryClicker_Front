@@ -556,7 +556,28 @@ class _ReservePageState extends State<ReservePage> {
 
                   for(int i = 0; i < 48; i++) { isEnableTile[flag][i] = false; }
                   for(int? i = selectedStartIndex! + 1; i! < selectedEndIndex!; i++){
-                    listViewState[flag][i] = 1;
+                    if (listViewState[flag][i] == 0) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            content: const Text("이미 예약된 시간입니다."),
+                            actions: [
+                              Center(
+                                  child: ElevatedButton(
+                                      onPressed: (){ Navigator.pop(context); },
+                                      child: const Text("확인")
+                                  )
+                              )
+                            ],
+                          );
+                        }
+                      );
+                      clearListView();
+                      break;
+                    } else {
+                      listViewState[flag][i] = 1;
+                    }
                   }
                 }
               }
