@@ -127,97 +127,217 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            Container(
-              margin: const EdgeInsets.all(10.0),
-              padding: const EdgeInsets.all(10.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
-                borderRadius: BorderRadius.circular(12),
-              ),
+            Flexible(
+              flex: 2,
+              fit: FlexFit.tight,
               child: Container(
-                alignment: Alignment.center,
-                child: Row(
-                  children: [
-                    Flexible(
-                      fit: FlexFit.tight,
-                      flex: 1,
-                      child: Column(
-                        children: const [
-                          Icon(Icons.sunny),
-                          Text("일", textAlign: TextAlign.center)
-                        ],
-                      )
+                margin: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(15.0),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    const Flexible(
+                        flex: 1,
+                        fit: FlexFit.tight,
+                        child: Text('< 주간 날씨 >')
                     ),
                     Flexible(
-                        fit: FlexFit.tight,
                         flex: 1,
-                        child: Column(
-                          children: const [
-                            Icon(Icons.sunny),
-                            Text("월", textAlign: TextAlign.center)
-                          ],
-                        )
-                    ),
-                    Flexible(
                         fit: FlexFit.tight,
-                        flex: 1,
-                        child: Column(
-                          children: const [
-                            Icon(Icons.cloud),
-                            Text("화", textAlign: TextAlign.center)
-                          ],
-                        )
-                    ),
-                    Flexible(
-                        fit: FlexFit.tight,
-                        flex: 1,
-                        child: Column(
-                          children: const [
-                            Icon(Icons.cloudy_snowing),
-                            Text("수", textAlign: TextAlign.center)
-                          ],
-                        )
-                    ),
-                    Flexible(
-                        fit: FlexFit.tight,
-                        flex: 1,
-                        child: Column(
-                          children: const [
-                            Icon(Icons.cloud),
-                            Text("목", textAlign: TextAlign.center)
-                          ],
-                        )
-                    ),
-                    Flexible(
-                        fit: FlexFit.tight,
-                        flex: 1,
-                        child: Column(
-                          children: const [
-                            Icon(Icons.sunny),
-                            Text("금", textAlign: TextAlign.center)
-                          ],
-                        )
-                    ),
-                    Flexible(
-                        fit: FlexFit.tight,
-                        flex: 1,
-                        child: Column(
-                          children: const [
-                            Icon(Icons.sunny_snowing),
-                            Text("토", textAlign: TextAlign.center)
-                          ],
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: Row(
+                            children: [
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: Column(
+                                    children: const [
+                                      Icon(Icons.sunny),
+                                      Text("일", textAlign: TextAlign.center)
+                                    ],
+                                  )
+                              ),
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: Column(
+                                    children: const [
+                                      Icon(Icons.sunny),
+                                      Text("월", textAlign: TextAlign.center)
+                                    ],
+                                  )
+                              ),
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: Column(
+                                    children: const [
+                                      Icon(Icons.cloud),
+                                      Text("화", textAlign: TextAlign.center)
+                                    ],
+                                  )
+                              ),
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: Column(
+                                    children: const [
+                                      Icon(Icons.cloudy_snowing),
+                                      Text("수", textAlign: TextAlign.center)
+                                    ],
+                                  )
+                              ),
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: Column(
+                                    children: const [
+                                      Icon(Icons.cloud),
+                                      Text("목", textAlign: TextAlign.center)
+                                    ],
+                                  )
+                              ),
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: Column(
+                                    children: const [
+                                      Icon(Icons.sunny),
+                                      Text("금", textAlign: TextAlign.center)
+                                    ],
+                                  )
+                              ),
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: Column(
+                                    children: const [
+                                      Icon(Icons.sunny_snowing),
+                                      Text("토", textAlign: TextAlign.center)
+                                    ],
+                                  )
+                              ),
+                            ],
+                          ),
                         )
                     ),
                   ],
                 ),
-              )
+              ),
+            ),
+
+            Flexible(
+              flex: 2,
+              fit: FlexFit.tight,
+              child: Container(
+                margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+                padding: const EdgeInsets.all(15.0),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    const Flexible(
+                        flex: 1,
+                        fit: FlexFit.tight,
+                        child: Text('< 오늘 날씨 >')
+                    ),
+                    Flexible(
+                      flex: 1,
+                      fit: FlexFit.tight,
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Row(
+                          children: [
+                            Flexible(
+                                fit: FlexFit.tight,
+                                flex: 1,
+                                child: Column(
+                                  children: const [
+                                    Icon(Icons.sunny),
+                                    Text("일", textAlign: TextAlign.center)
+                                  ],
+                                )
+                            ),
+                            Flexible(
+                                fit: FlexFit.tight,
+                                flex: 1,
+                                child: Column(
+                                  children: const [
+                                    Icon(Icons.sunny),
+                                    Text("월", textAlign: TextAlign.center)
+                                  ],
+                                )
+                            ),
+                            Flexible(
+                                fit: FlexFit.tight,
+                                flex: 1,
+                                child: Column(
+                                  children: const [
+                                    Icon(Icons.cloud),
+                                    Text("화", textAlign: TextAlign.center)
+                                  ],
+                                )
+                            ),
+                            Flexible(
+                                fit: FlexFit.tight,
+                                flex: 1,
+                                child: Column(
+                                  children: const [
+                                    Icon(Icons.cloudy_snowing),
+                                    Text("수", textAlign: TextAlign.center)
+                                  ],
+                                )
+                            ),
+                            Flexible(
+                                fit: FlexFit.tight,
+                                flex: 1,
+                                child: Column(
+                                  children: const [
+                                    Icon(Icons.cloud),
+                                    Text("목", textAlign: TextAlign.center)
+                                  ],
+                                )
+                            ),
+                            Flexible(
+                                fit: FlexFit.tight,
+                                flex: 1,
+                                child: Column(
+                                  children: const [
+                                    Icon(Icons.sunny),
+                                    Text("금", textAlign: TextAlign.center)
+                                  ],
+                                )
+                            ),
+                            Flexible(
+                                fit: FlexFit.tight,
+                                flex: 1,
+                                child: Column(
+                                  children: const [
+                                    Icon(Icons.sunny_snowing),
+                                    Text("토", textAlign: TextAlign.center)
+                                  ],
+                                )
+                            ),
+                          ],
+                        ),
+                      )
+                    ),
+                  ],
+                ),
+              ),
             ),
 
             Flexible(
               flex: 8,
               fit: FlexFit.tight,
               child: Container(
-                margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+                margin: const EdgeInsets.all(10.0),
                 padding: const EdgeInsets.all(15.0),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.black),
@@ -273,65 +393,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-
-            Flexible(
-              flex: 5,
-              fit: FlexFit.tight,
-              child: Container(
-                margin: const EdgeInsets.all(10.0),
-                padding: const EdgeInsets.all(15.0),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: <Widget>[
-                    const Flexible(
-                      flex: 1,
-                      fit: FlexFit.tight,
-                      child: Text('< 가장 빠른 예약 정보 >',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Flexible(
-                      flex: 5,
-                      fit: FlexFit.tight,
-                      child: TimerBuilder.periodic(
-                        const Duration(minutes: 10),
-                        builder: (context) {
-                          return ListView.builder(
-                            padding: const EdgeInsets.all(2),
-                            itemCount: 6,
-                            itemBuilder: (BuildContext context, int index){
-                              return _buildItem(
-                                  getMachineName(index), getMachineIcon(index),
-                                  getEarliestReservation(index)
-                              );
-                            },
-                          );
-                        }
-                      )
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildItem(String machineName, IconData machineIcon, String earliestTime) {
-    return Card(
-      elevation: 2,
-      child: ListTile(
-        title: Text(
-          machineName,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(earliestTime),
-        leading: Icon(machineIcon),
       ),
     );
   }

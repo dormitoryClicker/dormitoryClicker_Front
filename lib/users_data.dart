@@ -7,10 +7,10 @@ class UsersData extends ChangeNotifier{
       'userId' : "20221111",
       'password' : "1234",
       'dormitory' : "오름관 1동",
-      'canReservation' : false,
-      'machineNum' : "W1",
-      'startTime' : "2022-11-17 15:20:00",
-      'endTime' : "2022-11-17 16:40:00"
+      'canReservation' : true,
+      'machineNum' : "",
+      'startTime' : "",
+      'endTime' : ""
     },
     {
       'userName' : "김남수",
