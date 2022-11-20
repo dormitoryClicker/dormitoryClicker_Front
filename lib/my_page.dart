@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:timer_builder/timer_builder.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'user_info.dart';
-import 'users_data.dart';
-import 'dorm_data.dart';
-import 'home_page.dart';
-import 'signin_page.dart';
-import 'setting_page.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({Key? key}) : super(key: key);
@@ -17,16 +13,42 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
+
+  Future<void> getUserData(String userId) async {
+    http.Response res = await http.post('https://123.123.123.123:123/user',
+        body: {
+          'userId': userId,
+        }
+    );
+
+    //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
+    //여기서 res.body를 jsonDecode 함수로 객체로 만들어서 데이터를 처리할 수 있다.
+    String jsonData = res.body;
+    Map<String, dynamic> userData = jsonDecode(jsonData);
+
+    userInfo.putUserId(userData['userId']);
+    userInfo.putPassword(userData['password']);
+    userInfo.putUserName(userData['userName']);
+    userInfo.putDormitory(userData['dormitory']);
+    List<String>? reservation = userData['reservation'];
+    if (reservation != null) {
+      userInfo.putCanReservation(false);
+      userInfo.putStartTime(reservation[0]);
+      userInfo.putEndTime(reservation[1]);
+    } else {
+      userInfo.putCanReservation(true);
+      userInfo.putStartTime("");
+      userInfo.putEndTime("");
+    }
+
+    return; //작업이 끝났기 때문에 리턴
+  }
+
   var userInfo;
-  var usersData;
-  var dormData;
 
   @override
   Widget build(BuildContext context) {
-
     userInfo = Provider.of<UserInfo>(context, listen: true);
-    usersData = Provider.of<UsersData>(context, listen: true);
-    dormData = Provider.of<DormData>(context, listen: true);
 
     DateTime tempStartTime = userInfo.getStartTime();
     DateTime tempEndTime = userInfo.getEndTime();
@@ -35,13 +57,7 @@ class _MyPageState extends State<MyPage> {
         {required DateTime? startTime, required DateTime? endTime}) {
       int diffSec = endTime!.difference(DateTime.now()).inSeconds;
       if (diffSec <= 0){
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          usersData.deleteReservation(userInfo.getUserId());
-          userInfo.putCanReservation(true);
-          userInfo.putMachineNum("");
-          userInfo.putStartTime("");
-          userInfo.putEndTime("");
-        });
+        return '예약 시간이 종료되었습니다';
       }
 
       int check = DateTime.now().difference(startTime!).inSeconds;
@@ -65,7 +81,7 @@ class _MyPageState extends State<MyPage> {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              accountName: Text(userInfo.getUserName()),
+              accountName: const Text(""),
               accountEmail: Text(userInfo.getUserId()),
               decoration: BoxDecoration(color: Colors.blue[300]),
             ),
@@ -265,39 +281,6 @@ class _MyPageState extends State<MyPage> {
                                 ),
                               )
                             ),
-                          ),
-                          Container(
-                            alignment: Alignment.bottomRight,
-                            margin: const EdgeInsets.only(bottom: 12, right: 30),
-                            child: Visibility(
-                              visible: userInfo.getCanReservation() ?
-                              false : true,
-                              child: ElevatedButton(
-                                onPressed: (){
-                                  usersData.deleteReservation(userInfo.getUserId());
-                                  dormData.deleteReservation(
-                                    userInfo.getDormitory(),
-                                    userInfo.getMachineNum(),
-                                    DateFormat('yyyy-MM-dd HH:mm:00').format(userInfo.getStartTime()),
-                                    DateFormat('yyyy-MM-dd HH:mm:00').format(userInfo.getEndTime())
-                                  );
-                                  userInfo.putCanReservation(true);
-                                  userInfo.putMachineNum("");
-                                  userInfo.putStartTime("");
-                                  userInfo.putEndTime("");
-                                },
-                                style: ButtonStyle(
-                                  padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(15.0))
-                                ),
-                                child: const Text(
-                                  "예약취소",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            )
                           ),
                         ],
                       )

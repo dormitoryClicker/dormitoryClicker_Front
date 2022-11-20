@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'user_info.dart';
-import 'users_data.dart';
+import 'reservation_data.dart';
 import 'dorm_data.dart';
 import 'home_page.dart';
 import 'my_page.dart';
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
           create: (context) => UserInfo()
         ),
         ChangeNotifierProvider(
-            create: (context) => UsersData()
+            create: (context) => ReservationData()
         ),
         ChangeNotifierProvider(
             create: (context) => DormData()

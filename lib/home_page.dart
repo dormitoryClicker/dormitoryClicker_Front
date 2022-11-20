@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'dorm_data.dart';
 import 'user_info.dart';
-import 'users_data.dart';
-import 'my_page.dart';
-import 'reserve_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -16,8 +15,27 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  Future<void> getMachineData(String userId) async {
+    http.Response res = await http.post('https://123.123.123.123:123/dormitory',
+        body: {
+          'userId': userId,
+        }
+    );
+
+    //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
+    //여기서 res.body를 jsonDecode 함수로 객체로 만들어서 데이터를 처리할 수 있다.
+    String jsonData = res.body;
+    List<Map<String, dynamic>> machinesData = jsonDecode(jsonData);
+
+    for(int i = 0; i < dormData.machines.length; i++){
+      dormData.machines[i]['machineNum'] = machinesData[i]['machineNum'];
+      dormData.machines[i]['state'] = machinesData[i]['state'];
+    }
+
+    return; //작업이 끝났기 때문에 리턴
+  }
+
   var userInfo;
-  var usersData;
   var dormData;
 
   static const IconData washIcon = IconData(
@@ -30,55 +48,34 @@ class _HomePageState extends State<HomePage> {
       fontFamily: 'MaterialIcons'
   );
 
-  List<Map> tempDormList = List<Map>.empty(growable: true);
-
   @override
   Widget build(BuildContext context) {
     userInfo = Provider.of<UserInfo>(context, listen: true);
-    usersData = Provider.of<UsersData>(context, listen: true);
     dormData = Provider.of<DormData>(context, listen: true);
 
-    tempDormList = dormData.machines[userInfo.getDormitory()];
-
     String getMachineName(int index) {
-      String machineNum = dormData.machines[userInfo.getDormitory()][index]['machineNum'];
+      String machineNum = dormData.machines[index]['machineNum'];
       if(machineNum.startsWith('W')){
         return "세탁 ${machineNum[1]}";
       } else {
         return "건조 ${machineNum[1]}";
       }
     }
-
     IconData getMachineIcon(int index) {
-      String machineNum = dormData.machines[userInfo.getDormitory()][index]['machineNum'];
+      String machineNum = dormData.machines[index]['machineNum'];
       if(machineNum.startsWith('W')){
         return washIcon;
       } else {
         return dryIcon;
       }
     }
-
-    String getEarliestReservation(int index){
-      List<String> startTimeList = dormData.machines[userInfo.getDormitory()][index]['startTime'];
-      List<String> endTimeList = dormData.machines[userInfo.getDormitory()][index]['endTime'];
-      if(startTimeList.isNotEmpty) {
-        String earliestStartTime = startTimeList[0];
-        int check = 0;
-        for (int i = 1; i < startTimeList.length; i++) {
-          check = DateTime.parse(earliestStartTime).difference(DateTime.parse(startTimeList[i])).inSeconds;
-          if(check < 0) {
-            if(DateTime.now().difference(DateTime.parse(earliestStartTime)).inSeconds > 0){
-              earliestStartTime = startTimeList[i];
-            } else {
-              continue;
-            }
-          }
-          else earliestStartTime = startTimeList[i];
-        }
-        int earliestTimeIndex = startTimeList.indexOf(earliestStartTime);
-        return "$earliestStartTime  ~  ${endTimeList[earliestTimeIndex]}";
+    Color getMachineColor(int index) {
+      String state = dormData.machines[index]['state'];
+      if(state == 1){
+        return Colors.greenAccent;
+      } else {
+        return Colors.redAccent;
       }
-      return "예약 없음";
     }
 
     return WillPopScope(
@@ -88,7 +85,7 @@ class _HomePageState extends State<HomePage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(userInfo.getDormitory()),
+          title: Text("홈"),
           centerTitle: true,
           elevation: 0.0,
         ),
@@ -97,7 +94,7 @@ class _HomePageState extends State<HomePage> {
             padding: EdgeInsets.zero,
             children: [
               UserAccountsDrawerHeader(
-                accountName: Text(userInfo.getUserName()),
+                accountName: const Text(""),
                 accountEmail: Text(userInfo.getUserId()),
                 decoration: BoxDecoration(color: Colors.blue[300]),
               ),
@@ -374,18 +371,15 @@ class _HomePageState extends State<HomePage> {
                                   footer: Container(
                                     height: 40,
                                     child: GridTileBar(
-                                        backgroundColor: Colors.black38,
+                                        backgroundColor: getMachineColor(index),
                                         title: Text(getMachineName(index), textAlign: TextAlign.center)
                                     ),
                                   ),
                                   child: IconButton(
                                     icon: Icon(getMachineIcon(index), size: 50,),
                                     onPressed: (){
-                                      if(index <= 3) {
-                                        userInfo.putMachineNum("W${index + 1}");
-                                      } else {
-                                        userInfo.putMachineNum("D${index - 3}");
-                                      }
+                                      String machineNum = dormData.machines[index]['machineNum'];
+                                      userInfo.putMachineNum(machineNum);
                                       Navigator.pushNamed(context, '/reservation');
                                     },
                                   ),

@@ -1,7 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'signin_page.dart';
-import 'users_data.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+Future<bool> sendSignUpData(String userId, String password, String userName, String dormitory) async {
+  http.Response res = await http.post('https://123.123.123.123:123/signup',
+      body: {
+        'userId': userId,
+        'password': password,
+        'userName': userName,
+        'dormitory': dormitory
+      }
+  );
+
+  //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
+  //여기서 res.body를 jsonDecode 함수로 객체로 만들어서 데이터를 처리할 수 있다.
+  String jsonData = res.body;
+  var isSuccess = jsonDecode(jsonData);
+
+  return isSuccess; //작업이 끝났기 때문에 리턴
+}
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -12,8 +29,6 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
-
-  var usersData;
 
   String? _userName;
   String? _userId;
@@ -26,7 +41,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    usersData = Provider.of<UsersData>(context, listen: true);
     return Scaffold(
       body: Column(
         children: [
@@ -208,50 +222,44 @@ class _SignUpPageState extends State<SignUpPage> {
                       child: ElevatedButton(
                         onPressed: () {
                           if(_formKey.currentState!.validate()) {
-                            if(usersData.findUser(_userId) != null){
+                            _dormitory = '${_dormFirst!} ${_dormSecond!}';
+                            var isSuccess = sendSignUpData(_userId!, _password!, _userName!, _dormitory!) as bool;
+                            if(isSuccess == false){
                               showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      content: const Text("이미 가입된 아이디입니다"),
-                                      actions: [
-                                        Center(
-                                            child: ElevatedButton(
-                                                onPressed: (){ Navigator.pop(context); },
-                                                child: const Text("확인")
-                                            )
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    content: const Text("회원가입에 실패하였습니다."),
+                                    actions: [
+                                      Center(
+                                        child: ElevatedButton(
+                                          onPressed: (){ Navigator.pop(context); },
+                                          child: const Text("확인")
                                         )
-                                      ],
-                                    );
-                                  }
+                                      )
+                                    ],
+                                  );
+                                }
                               );
-                              return;
-                            }
-
-                            if(_password != _passCheck){
+                            } else {
                               showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      content: const Text("비밀번호가 틀렸습니다"),
-                                      actions: [
-                                        Center(
-                                            child: ElevatedButton(
-                                                onPressed: (){ Navigator.pop(context); },
-                                                child: const Text("확인")
-                                            )
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    content: const Text("회원가입에 성공하였습니다."),
+                                    actions: [
+                                      Center(
+                                        child: ElevatedButton(
+                                          onPressed: (){ Navigator.pop(context); },
+                                          child: const Text("확인")
                                         )
-                                      ],
-                                    );
-                                  }
+                                      )
+                                    ],
+                                  );
+                                }
                               );
-                              return;
+                              Navigator.pop(context);
                             }
-                            
-                            _dormitory = _dormFirst! + ' ' + _dormSecond!;
-                            usersData.addUser(_userName, _userId, _password, _dormitory);
-
-                            Navigator.pushNamed(context, '/signin');
                           }
                         },
                         style: ButtonStyle(

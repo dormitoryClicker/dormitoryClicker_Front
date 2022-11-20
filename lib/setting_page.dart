@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'user_info.dart';
-import 'users_data.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({Key? key}) : super(key: key);
@@ -13,7 +12,6 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage> {
 
   var userInfo;
-  var usersData;
 
   final List<String> _selectedTimer = [
     '10', '15', '20','25', '30',
@@ -29,7 +27,6 @@ class _SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
     userInfo = Provider.of<UserInfo>(context, listen: true);
-    usersData = Provider.of<UsersData>(context, listen: true);
 
     tempDorm = userInfo.getDormitory();
     dormFirst = tempDorm!.split(' ')[0];
@@ -211,7 +208,7 @@ class _SettingPageState extends State<SettingPage> {
                           if(dormFirst != null && dormSecond != null){
                             if(tempDorm != '${dormFirst!} ${dormSecond!}'){
                               userInfo.putDormitory(tempDorm);
-                              usersData.changeDormitory(userInfo.getUserId(), tempDorm);
+                              //usersData.changeDormitory(userInfo.getUserId(), tempDorm);
                             } else if (tempDorm == '${dormFirst!} ${dormSecond!}') {
                               showDialog(
                                 context: context,

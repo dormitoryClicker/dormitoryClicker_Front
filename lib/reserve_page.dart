@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'dorm_data.dart';
-import 'users_data.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'user_info.dart';
-import 'my_page.dart';
+import 'reservation_data.dart';
 
 class MyTime{
   static String set_Day = getToday(daySelect: 0);
@@ -44,6 +44,43 @@ class ReservePage extends StatefulWidget {
 }
 
 class _ReservePageState extends State<ReservePage> {
+
+  Future<void> getReservationData(String dormitory, String machineNum) async {
+    http.Response res = await http.get(Uri.parse(
+        'https://123.123.123.123:123/reservation?dormitory=$dormitory&machineNum=$machineNum'
+    ));
+
+    //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
+    //여기서 res.body를 jsonDecode 함수로 객체로 만들어서 데이터를 처리할 수 있다.
+    String jsonData = res.body;
+    Map<String, List> rsvData = jsonDecode(jsonData);
+
+    for(int i = 0; i < rsvData['startDatetime']!.length; i++){
+      reservationData.reservations['startDatetime'].add(rsvData['startDatetime']![i]);
+      reservationData.reservations['endDatetime'].add(rsvData['endDatetime']![i]);
+    }
+
+    return; //작업이 끝났기 때문에 리턴
+  }
+
+  Future<bool> putReservationData(String userId, String dormitory, String machineNum, DateTime startDatetime, DateTime endDatetime) async {
+    http.Response res = await http.post('https://123.123.123.123:123/reservation',
+        body: {
+          'userId': userId,
+          'dormitory': dormitory,
+          'machineNum': machineNum,
+          'startDatetime': startDatetime,
+          'endDatetime': endDatetime,
+        }
+    );
+
+    //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
+    //여기서 res.body를 jsonDecode 함수로 객체로 만들어서 데이터를 처리할 수 있다.
+    String jsonData = res.body;
+    var isSuccess = jsonDecode(jsonData);
+
+    return isSuccess; //작업이 끝났기 때문에 리턴
+  }
 
   /***********************날짜 선택 토글 버튼 관련*************************/
   bool dDay_0 = false;
@@ -97,29 +134,28 @@ class _ReservePageState extends State<ReservePage> {
         message = '시간을 지정해주세요.';
       }
       else {
-        userInfo.putCanReservation(false);
-        userInfo.putStartTime(DateFormat('yyyy-MM-dd HH:mm:00').format(newStartTime));
-        userInfo.putEndTime(DateFormat('yyyy-MM-dd HH:mm:00').format(newEndTime));
+        bool isSuccess = putReservationData(
+          userInfo.getUserId(), userInfo.getDormitory(),
+          userInfo.getMachineNum(),
+          newStartTime, newEndTime
+        ) as bool;
 
-        dormData.addReservation(
-          userInfo.getDormitory(), userInfo.getMachineNum(),
-          DateFormat('yyyy-MM-dd HH:mm:00').format(newStartTime),
-          DateFormat('yyyy-MM-dd HH:mm:00').format(newEndTime)
-        );
+        if(isSuccess == false){
+          message = '예약에 실패하였습니다.';
+          return;
+        } else {
+          userInfo.putCanReservation(false);
+          userInfo.putStartTime(DateFormat('yyyy-MM-dd HH:mm:00').format(newStartTime));
+          userInfo.putEndTime(DateFormat('yyyy-MM-dd HH:mm:00').format(newEndTime));
 
-        usersData.addReservation(
-          userInfo.getUserId(), userInfo.getMachineNum(),
-            DateFormat('yyyy-MM-dd HH:mm:00').format(newStartTime),
-            DateFormat('yyyy-MM-dd HH:mm:00').format(newEndTime)
-        );
-
-        message = '예약되었습니다.';
-        my_r_time = "${userInfo.getStartTime().month}월 ${userInfo.getStartTime().day}일 "
-            "${userInfo.getStartTime().hour}시 ${userInfo.getStartTime().minute}분"
-            " - "
-            "${userInfo.getEndTime().month}월 ${userInfo.getEndTime().day}일 "
-            "${userInfo.getEndTime().hour}시 ${userInfo.getEndTime().minute}분";
-        message += "\n\n$my_r_time";
+          message = '예약되었습니다.';
+          my_r_time = "${userInfo.getStartTime().month}월 ${userInfo.getStartTime().day}일 "
+              "${userInfo.getStartTime().hour}시 ${userInfo.getStartTime().minute}분"
+              " - "
+              "${userInfo.getEndTime().month}월 ${userInfo.getEndTime().day}일 "
+              "${userInfo.getEndTime().hour}시 ${userInfo.getEndTime().minute}분";
+          message += "\n\n$my_r_time";
+        }
       }
     }
     else {
@@ -182,26 +218,28 @@ class _ReservePageState extends State<ReservePage> {
   }
 
   void clearListView(){
-    Map tempMachine = dormData.findMachine(userInfo.getDormitory(), userInfo.getMachineNum());
-    List<String> tempStartTime = tempMachine['startTime'];
-    List<String> tempEndTime = tempMachine['endTime'];
+    Map<String, List> tempMachine = reservationData.reservations;
+    List? tempStartTime = tempMachine['startTime'];
+    List? tempEndTime = tempMachine['endTime'];
     List<int> disableStartTimeList = List<int>.empty(growable: true);
     List<int> disableEndTimeList = List<int>.empty(growable: true);
 
-    for(int i = 0; i < tempStartTime.length; i++){
+    for(int i = 0; i < tempStartTime!.length; i++){
+      String tempStart = DateFormat('yyyy-MM-dd HH:mm:00').format(tempStartTime[i]);
       for(int j = 0; j < startTimeList.length; j++){
-        if(tempStartTime[i][8] + tempStartTime[i][9] == MyTime.set_Day[8] + MyTime.set_Day[9]
-            && tempStartTime[i][11] + tempStartTime[i][12] == startTimeList[j][0] + startTimeList[j][1]
-            && tempStartTime[i][14] + tempStartTime[i][15] == startTimeList[j][4] + startTimeList[j][5]){
+        if(tempStart[8] + tempStart[9] == MyTime.set_Day[8] + MyTime.set_Day[9]
+            && tempStart[11] + tempStart[12] == startTimeList[j][0] + startTimeList[j][1]
+            && tempStart[14] + tempStart[15] == startTimeList[j][4] + startTimeList[j][5]){
           disableStartTimeList.add(j);
         }
       }
     }
-    for(int i = 0; i < tempEndTime.length; i++){
+    for(int i = 0; i < tempEndTime!.length; i++){
+      String tempEnd = DateFormat('yyyy-MM-dd HH:mm:00').format(tempEndTime[i]);
       for(int j = 0; j < endTimeList.length; j++){
-        if(tempEndTime[i][8] + tempEndTime[i][9] == MyTime.set_Day[8] + MyTime.set_Day[9]
-            && tempEndTime[i][11] + tempEndTime[i][12] == endTimeList[j][0] + endTimeList[j][1]
-            && tempEndTime[i][14] + tempEndTime[i][15] == endTimeList[j][4] + endTimeList[j][5]){
+        if(tempEnd[8] + tempEnd[9] == MyTime.set_Day[8] + MyTime.set_Day[9]
+            && tempEnd[11] + tempEnd[12] == endTimeList[j][0] + endTimeList[j][1]
+            && tempEnd[14] + tempEnd[15] == endTimeList[j][4] + endTimeList[j][5]){
           disableEndTimeList.add(j);
         }
       }
@@ -254,14 +292,12 @@ class _ReservePageState extends State<ReservePage> {
 
 
   var userInfo;
-  var usersData;
-  var dormData;
+  var reservationData;
 
   @override
   Widget build(BuildContext context) {
     userInfo = Provider.of<UserInfo>(context, listen: true);
-    dormData = Provider.of<DormData>(context, listen: true);
-    usersData = Provider.of<UsersData>(context, listen: true);
+    reservationData = Provider.of<ReservationData>(context, listen: true);
 
     return Scaffold(
       body: Column(
@@ -281,8 +317,6 @@ class _ReservePageState extends State<ReservePage> {
                     ),
                     onPressed: () {
                       MyTime.popping();
-                      Map? temp = usersData.findUser(userInfo.getUserId());
-                      userInfo.putMachineNum(temp!['machineNum']);
                       Navigator.pop(context);
                     },
                   ),
