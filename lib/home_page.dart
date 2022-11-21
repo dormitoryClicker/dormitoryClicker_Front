@@ -15,8 +15,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  Future<void> getMachineData(String userId) async {
-    http.Response res = await http.post('https://123.123.123.123:123/dormitory',
+  Future<List<Map<String, dynamic>>> getMachineData(String userId) async {
+    http.Response res = await http.post(Uri.parse('http://localhost:8080/dormitory'),
         body: {
           'userId': userId,
         }
@@ -27,12 +27,14 @@ class _HomePageState extends State<HomePage> {
     String jsonData = res.body;
     List<Map<String, dynamic>> machinesData = jsonDecode(jsonData);
 
+    print(machinesData);
+
     for(int i = 0; i < dormData.machines.length; i++){
       dormData.machines[i]['machineNum'] = machinesData[i]['machineNum'];
       dormData.machines[i]['state'] = machinesData[i]['state'];
     }
 
-    return; //작업이 끝났기 때문에 리턴
+    return machinesData; //작업이 끝났기 때문에 리턴
   }
 
   var userInfo;
@@ -335,62 +337,101 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              Flexible(
-                flex: 8,
-                fit: FlexFit.tight,
-                child: Container(
-                  margin: const EdgeInsets.all(10.0),
-                  padding: const EdgeInsets.all(15.0),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children: <Widget>[
-                      const Flexible(
-                          flex: 1,
-                          fit: FlexFit.tight,
-                          child: Text('< 기기 선택 >')
-                      ),
-                      Flexible(
-                          flex: 9,
-                          fit: FlexFit.tight,
-                          child: GridView.builder(
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4,
-                              mainAxisSpacing: 3,
-                              crossAxisSpacing: 3,
-                              childAspectRatio: 3/5,
+              FutureBuilder(
+                future: getMachineData(userInfo.getUserId()),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData == false) {
+                    return Flexible(
+                      flex: 8,
+                      fit: FlexFit.tight,
+                      child: Container(
+                        margin: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(15.0),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const CircularProgressIndicator()
+                      )
+                    );
+                  } else if (snapshot.hasError) {
+                    return Flexible(
+                      flex: 8,
+                      fit: FlexFit.tight,
+                      child: Container(
+                        margin: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(15.0),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Error: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
+                          style: TextStyle(fontSize: 15),
+                        )
+                      )
+                    );
+                  }
+                  else {
+                    return Flexible(
+                      flex: 8,
+                      fit: FlexFit.tight,
+                      child: Container(
+                        margin: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(15.0),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          children: <Widget>[
+                            const Flexible(
+                                flex: 1,
+                                fit: FlexFit.tight,
+                                child: Text('< 기기 선택 >')
                             ),
-                            itemCount: 6,
-                            itemBuilder: (BuildContext context, int index){
-                              return Card(
-                                margin: const EdgeInsets.all(2),
-                                elevation: 2,
-                                child: GridTile(
-                                  footer: Container(
-                                    height: 40,
-                                    child: GridTileBar(
-                                        backgroundColor: getMachineColor(index),
-                                        title: Text(getMachineName(index), textAlign: TextAlign.center)
-                                    ),
+                            Flexible(
+                                flex: 9,
+                                fit: FlexFit.tight,
+                                child: GridView.builder(
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4,
+                                    mainAxisSpacing: 3,
+                                    crossAxisSpacing: 3,
+                                    childAspectRatio: 3/5,
                                   ),
-                                  child: IconButton(
-                                    icon: Icon(getMachineIcon(index), size: 50,),
-                                    onPressed: (){
-                                      String machineNum = dormData.machines[index]['machineNum'];
-                                      userInfo.putMachineNum(machineNum);
-                                      Navigator.pushNamed(context, '/reservation');
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                          )
+                                  itemCount: 6,
+                                  itemBuilder: (BuildContext context, int index){
+                                    return Card(
+                                      margin: const EdgeInsets.all(2),
+                                      elevation: 2,
+                                      child: GridTile(
+                                        footer: Container(
+                                          height: 40,
+                                          child: GridTileBar(
+                                              backgroundColor: getMachineColor(index),
+                                              title: Text(getMachineName(index), textAlign: TextAlign.center)
+                                          ),
+                                        ),
+                                        child: IconButton(
+                                          icon: Icon(getMachineIcon(index), size: 50,),
+                                          onPressed: (){
+                                            String machineNum = dormData.machines[index]['machineNum'];
+                                            userInfo.putMachineNum(machineNum);
+                                            Navigator.pushNamed(context, '/reservation');
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                )
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ),
+                    );
+                  }
+                }
               ),
             ],
           ),

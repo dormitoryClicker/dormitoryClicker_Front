@@ -15,8 +15,8 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   final _formKey = GlobalKey<FormState>();
 
-  Future<bool> sendSignInData(String userId, String password) async {
-    http.Response res = await http.post('https://123.123.123.123:123/signin',
+  Future<String> sendSignInData(String userId, String password) async {
+    http.Response res = await http.post(Uri.parse('http://localhost:8080/signin'),
         body: {
           'userId': userId,
           'password': password
@@ -26,9 +26,8 @@ class _SignInPageState extends State<SignInPage> {
     //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
     //여기서 res.body를 jsonDecode 함수로 객체로 만들어서 데이터를 처리할 수 있다.
     String jsonData = res.body;
-    var isSuccess = jsonDecode(jsonData);
 
-    return isSuccess; //작업이 끝났기 때문에 리턴
+    return jsonData; //작업이 끝났기 때문에 리턴
   }
 
   var userInfo;
@@ -146,28 +145,29 @@ class _SignInPageState extends State<SignInPage> {
                               child: ElevatedButton(
                                 onPressed: () {
                                   if(_formKey.currentState!.validate()) {
-                                    var isSuccess = sendSignInData(_tempId!, _tempPw!) as bool;
-                                    if(isSuccess == false){
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            content: const Text("아이디 혹은 비밀번호가 유효하지 않습니다."),
-                                            actions: [
-                                              Center(
-                                                child: ElevatedButton(
-                                                  onPressed: (){ Navigator.pop(context); },
-                                                  child: const Text("확인")
-                                                )
-                                              )
-                                            ],
-                                          );
-                                        }
-                                      );
-                                    } else {
-                                      userInfo.putUserId(_tempId);
-                                      Navigator.pushReplacementNamed(context, '/');
-                                    }
+                                    sendSignInData(_tempId!, _tempPw!).then((value) {
+                                      if(value == 'failed'){
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                content: const Text("아이디 혹은 비밀번호가 유효하지 않습니다."),
+                                                actions: [
+                                                  Center(
+                                                      child: ElevatedButton(
+                                                          onPressed: (){ Navigator.pop(context); },
+                                                          child: const Text("확인")
+                                                      )
+                                                  )
+                                                ],
+                                              );
+                                            }
+                                        );
+                                      } else if (value == 'success') {
+                                        userInfo.putUserId(_tempId);
+                                        Navigator.pushReplacementNamed(context, '/');
+                                      }
+                                    });
                                   }
                                 },
                                 style: ButtonStyle(

@@ -47,7 +47,7 @@ class _ReservePageState extends State<ReservePage> {
 
   Future<void> getReservationData(String dormitory, String machineNum) async {
     http.Response res = await http.get(Uri.parse(
-        'https://123.123.123.123:123/reservation?dormitory=$dormitory&machineNum=$machineNum'
+        'http://localhost:8080/reservation?dormitory=$dormitory&machineNum=$machineNum'
     ));
 
     //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
@@ -64,7 +64,7 @@ class _ReservePageState extends State<ReservePage> {
   }
 
   Future<bool> putReservationData(String userId, String dormitory, String machineNum, DateTime startDatetime, DateTime endDatetime) async {
-    http.Response res = await http.post('https://123.123.123.123:123/reservation',
+    http.Response res = await http.post(Uri.parse('http://localhost:8080/reservation'),
         body: {
           'userId': userId,
           'dormitory': dormitory,

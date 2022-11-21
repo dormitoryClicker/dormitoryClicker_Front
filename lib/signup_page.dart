@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-Future<bool> sendSignUpData(String userId, String password, String userName, String dormitory) async {
-  http.Response res = await http.post('https://123.123.123.123:123/signup',
+Future<String> sendSignUpData(String userId, String password, String userName, String dormitory) async {
+  http.Response res = await http.post(Uri.parse('http://localhost:8080/signup'),
       body: {
         'userId': userId,
         'password': password,
@@ -15,9 +15,8 @@ Future<bool> sendSignUpData(String userId, String password, String userName, Str
   //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
   //여기서 res.body를 jsonDecode 함수로 객체로 만들어서 데이터를 처리할 수 있다.
   String jsonData = res.body;
-  var isSuccess = jsonDecode(jsonData);
 
-  return isSuccess; //작업이 끝났기 때문에 리턴
+  return jsonData; //작업이 끝났기 때문에 리턴
 }
 
 class SignUpPage extends StatefulWidget {
@@ -222,44 +221,79 @@ class _SignUpPageState extends State<SignUpPage> {
                       child: ElevatedButton(
                         onPressed: () {
                           if(_formKey.currentState!.validate()) {
-                            _dormitory = '${_dormFirst!} ${_dormSecond!}';
-                            var isSuccess = sendSignUpData(_userId!, _password!, _userName!, _dormitory!) as bool;
-                            if(isSuccess == false){
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    content: const Text("회원가입에 실패하였습니다."),
-                                    actions: [
-                                      Center(
-                                        child: ElevatedButton(
-                                          onPressed: (){ Navigator.pop(context); },
-                                          child: const Text("확인")
-                                        )
-                                      )
-                                    ],
-                                  );
-                                }
-                              );
-                            } else {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    content: const Text("회원가입에 성공하였습니다."),
-                                    actions: [
-                                      Center(
-                                        child: ElevatedButton(
-                                          onPressed: (){ Navigator.pop(context); },
-                                          child: const Text("확인")
-                                        )
-                                      )
-                                    ],
-                                  );
-                                }
-                              );
-                              Navigator.pop(context);
-                            }
+                            _dormitory = '${_dormFirst![0]}${_dormFirst![1]}${_dormSecond![0]}';
+                            sendSignUpData(_userId!, _password!, _userName!, _dormitory!).then((value) {
+                              if(value == 'success'){
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: const Text("회원가입에 성공하였습니다."),
+                                        actions: [
+                                          Center(
+                                              child: ElevatedButton(
+                                                  onPressed: (){ Navigator.pop(context); },
+                                                  child: const Text("확인")
+                                              )
+                                          )
+                                        ],
+                                      );
+                                    }
+                                );
+                                Navigator.pop(context);
+                              } else if (value == 'Id exists') {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: const Text("이미 존재하는 아이디입니다."),
+                                        actions: [
+                                          Center(
+                                              child: ElevatedButton(
+                                                  onPressed: (){ Navigator.pop(context); },
+                                                  child: const Text("확인")
+                                              )
+                                          )
+                                        ],
+                                      );
+                                    }
+                                );
+                              } else if (value == 'Bad request') {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: const Text("입력이 정상적으로 이루어지지 않았습니다."),
+                                        actions: [
+                                          Center(
+                                              child: ElevatedButton(
+                                                  onPressed: (){ Navigator.pop(context); },
+                                                  child: const Text("확인")
+                                              )
+                                          )
+                                        ],
+                                      );
+                                    }
+                                );
+                              } else {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: const Text("서버에 문제가 발생했습니다."),
+                                        actions: [
+                                          Center(
+                                              child: ElevatedButton(
+                                                  onPressed: (){ Navigator.pop(context); },
+                                                  child: const Text("확인")
+                                              )
+                                          )
+                                        ],
+                                      );
+                                    }
+                                );
+                              }
+                            });
                           }
                         },
                         style: ButtonStyle(

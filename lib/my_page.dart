@@ -15,7 +15,7 @@ class MyPage extends StatefulWidget {
 class _MyPageState extends State<MyPage> {
 
   Future<void> getUserData(String userId) async {
-    http.Response res = await http.post('https://123.123.123.123:123/user',
+    http.Response res = await http.post(Uri.parse('http://localhost:8080/user'),
         body: {
           'userId': userId,
         }
