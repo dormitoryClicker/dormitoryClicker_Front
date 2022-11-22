@@ -5,27 +5,27 @@ class DormData extends ChangeNotifier{
   [
     {
       "machineNum": "",
-      "state": 1
+      "state": 0
     },
     {
       "machineNum": "",
-      "state": 1
+      "state": 0
     },
     {
       "machineNum": "",
-      "state": 1
+      "state": 0
     },
     {
       "machineNum": "",
-      "state": 1
+      "state": 0
     },
     {
       "machineNum": "",
-      "state": 1
+      "state": 0
     },
     {
       "machineNum": "",
-      "state": 1
+      "state": 0
     }
   ];
 }

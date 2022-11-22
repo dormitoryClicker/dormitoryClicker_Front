@@ -15,26 +15,28 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  Future<List<Map<String, dynamic>>> getMachineData(String userId) async {
+  Future<String> getMachineData(String userId) async {
+    Map data = {'userId': userId};
+    var body = json.encode(data);
+
     http.Response res = await http.post(Uri.parse('http://localhost:8080/dormitory'),
-        body: {
-          'userId': userId,
-        }
+        headers: {'Content-Type': "application/json"},
+        body: body
     );
 
     //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
     //여기서 res.body를 jsonDecode 함수로 객체로 만들어서 데이터를 처리할 수 있다.
     String jsonData = res.body;
-    List<Map<String, dynamic>> machinesData = jsonDecode(jsonData);
 
-    print(machinesData);
-
-    for(int i = 0; i < dormData.machines.length; i++){
-      dormData.machines[i]['machineNum'] = machinesData[i]['machineNum'];
-      dormData.machines[i]['state'] = machinesData[i]['state'];
+    if (jsonData == "Server Unavailable") { return "500: Server Unavailable"; }
+    else if (jsonData == "Not found userId with $userId") { return "404: User Not Found"; }
+    else {
+      for(int i = 0; i < json.decode(jsonData).length; i++){
+        dormData.machines[i]['machineNum'] = json.decode(jsonData)[i]['machineNum'];
+        dormData.machines[i]['state'] = json.decode(jsonData)[i]['state'];
+      }
+      return "Success";
     }
-
-    return machinesData; //작업이 끝났기 때문에 리턴
   }
 
   var userInfo;
@@ -72,7 +74,7 @@ class _HomePageState extends State<HomePage> {
       }
     }
     Color getMachineColor(int index) {
-      String state = dormData.machines[index]['state'];
+      int state = dormData.machines[index]['state'];
       if(state == 1){
         return Colors.greenAccent;
       } else {
@@ -340,39 +342,8 @@ class _HomePageState extends State<HomePage> {
               FutureBuilder(
                 future: getMachineData(userInfo.getUserId()),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData == false) {
-                    return Flexible(
-                      flex: 8,
-                      fit: FlexFit.tight,
-                      child: Container(
-                        margin: const EdgeInsets.all(10.0),
-                        padding: const EdgeInsets.all(15.0),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const CircularProgressIndicator()
-                      )
-                    );
-                  } else if (snapshot.hasError) {
-                    return Flexible(
-                      flex: 8,
-                      fit: FlexFit.tight,
-                      child: Container(
-                        margin: const EdgeInsets.all(10.0),
-                        padding: const EdgeInsets.all(15.0),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          'Error: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
-                          style: TextStyle(fontSize: 15),
-                        )
-                      )
-                    );
-                  }
-                  else {
+                  if (snapshot.hasData) {
+                    print(dormData.machines);
                     return Flexible(
                       flex: 8,
                       fit: FlexFit.tight,
@@ -429,6 +400,38 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                       ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Flexible(
+                      flex: 8,
+                      fit: FlexFit.tight,
+                      child: Container(
+                        margin: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(15.0),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Error: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
+                          style: TextStyle(fontSize: 15),
+                        )
+                      )
+                    );
+                  }
+                  else {
+                    return Flexible(
+                        flex: 8,
+                        fit: FlexFit.tight,
+                        child: Container(
+                            margin: const EdgeInsets.all(10.0),
+                            padding: const EdgeInsets.all(15.0),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const CircularProgressIndicator()
+                        )
                     );
                   }
                 }
