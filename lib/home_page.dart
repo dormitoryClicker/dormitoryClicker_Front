@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
@@ -17,8 +20,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  Future<String> getMachineData(String userId) async {
-    Map data = {'userId': userId};
+  final AsyncMemoizer _memoizer = AsyncMemoizer();
+
+  Future _getDataSetting() => _memoizer.runOnce(() => getMachineData());
+
+  Future<String> getMachineData() async {
+    Map data = {'userId': userInfo.getUserId()};
     var body = json.encode(data);
 
     http.Response res = await http.post(Uri.parse('http://localhost:8080/dormitory'),
@@ -31,8 +38,10 @@ class _HomePageState extends State<HomePage> {
     String jsonData = res.body;
 
     if (jsonData == "Server Unavailable") { return "500: Server Unavailable"; }
-    else if (jsonData == "Not found userId with $userId") { return "404: User Not Found"; }
+    else if (jsonData == "Not found userId with ${userInfo.getUserId()}") { return "404: User Not Found"; }
     else {
+      print(json.decode(jsonData));
+
       userInfo.putUserId(json.decode(jsonData)['userId']);
       userInfo.putDormitory(json.decode(jsonData)['dormitory']);
       userInfo.putCanReservation(json.decode(jsonData)['canReservation'] == 1 ? true : false);
@@ -377,7 +386,7 @@ class _HomePageState extends State<HomePage> {
               ),
 
               FutureBuilder(
-                future: getMachineData(userInfo.getUserId()),
+                future: _getDataSetting(),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasData) {
                     return Flexible(

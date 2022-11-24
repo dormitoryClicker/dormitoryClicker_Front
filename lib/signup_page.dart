@@ -1,23 +1,7 @@
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-Future<String> sendSignUpData(String userId, String password, String userName, String dormitory) async {
-  http.Response res = await http.post(Uri.parse('http://localhost:8080/signup'),
-      body: {
-        'userId': userId,
-        'password': password,
-        'userName': userName,
-        'dormitory': dormitory
-      }
-  );
-
-  //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
-  //여기서 res.body를 jsonDecode 함수로 객체로 만들어서 데이터를 처리할 수 있다.
-  String jsonData = res.body;
-
-  return jsonData; //작업이 끝났기 때문에 리턴
-}
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -28,6 +12,28 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
+
+  final AsyncMemoizer _memoizer = AsyncMemoizer();
+
+  Future _getDataSetting(String userId, String password, String userName, String dormitory)
+  => _memoizer.runOnce(() => sendSignUpData(userId, password, userName, dormitory));
+
+  Future<String> sendSignUpData(String userId, String password, String userName, String dormitory) async {
+    http.Response res = await http.post(Uri.parse('http://localhost:8080/signup'),
+        body: {
+          'userId': userId,
+          'password': password,
+          'userName': userName,
+          'dormitory': dormitory
+        }
+    );
+
+    //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
+    //여기서 res.body를 jsonDecode 함수로 객체로 만들어서 데이터를 처리할 수 있다.
+    String jsonData = res.body;
+
+    return jsonData; //작업이 끝났기 때문에 리턴
+  }
 
   String? _userName;
   String? _userId;
@@ -223,7 +229,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           if(_formKey.currentState!.validate()) {
                             if (_password == _passCheck){
                               _dormitory = '${_dormFirst![0]}${_dormFirst![1]}${_dormSecond![0]}';
-                              sendSignUpData(_userId!, _password!, _userName!, _dormitory!).then((value) {
+                              _getDataSetting(_userId!, _password!, _userName!, _dormitory!).then((value) {
                                 if(value == 'success'){
                                   Navigator.pop(context);
                                   showDialog(

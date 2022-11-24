@@ -1,3 +1,4 @@
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -45,6 +46,13 @@ class ReservePage extends StatefulWidget {
 }
 
 class _ReservePageState extends State<ReservePage> {
+
+  final AsyncMemoizer _memoizer = AsyncMemoizer();
+
+  Future _getDataSetting1(String dormitory, String machineNum)
+    => _memoizer.runOnce(() => getReservationData(dormitory, machineNum));
+  Future _getDataSetting2(String userId, String dormitory, String machineNum, DateTime startDatetime, DateTime endDatetime)
+    => _memoizer.runOnce(() => putReservationData(userId, dormitory, machineNum, startDatetime, endDatetime));
 
   Future<String> getReservationData(String dormitory, String machineNum) async {
     http.Response res = await http.get(Uri.parse(
@@ -134,7 +142,7 @@ class _ReservePageState extends State<ReservePage> {
         message = '시간을 지정해주세요.';
       }
       else {
-        putReservationData(
+        _getDataSetting2(
           userInfo.getUserId(), userInfo.getDormitory(),
           userInfo.getMachineNum(),
           newStartTime, newEndTime
@@ -302,7 +310,7 @@ class _ReservePageState extends State<ReservePage> {
 
     return Scaffold(
       body: FutureBuilder(
-        future: getReservationData(userInfo.getDormitory(), userInfo.getMachineNum()),
+        future: _getDataSetting1(userInfo.getDormitory(), userInfo.getMachineNum()),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             return Column(

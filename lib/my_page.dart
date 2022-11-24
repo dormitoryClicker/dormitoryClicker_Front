@@ -1,3 +1,4 @@
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:timer_builder/timer_builder.dart';
@@ -15,6 +16,11 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
+
+  final AsyncMemoizer _memoizer = AsyncMemoizer();
+
+  Future _getDataSetting(String userId)
+  => _memoizer.runOnce(() => getUserData(userId));
 
   Future<String> getUserData(String userId) async {
     Map data = {'userId': userId};
@@ -117,7 +123,7 @@ class _MyPageState extends State<MyPage> {
         ),
       ),
       body: FutureBuilder(
-        future: getUserData(userInfo.getUserId()),
+        future: _getDataSetting(userInfo.getUserId()),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             return Center(
