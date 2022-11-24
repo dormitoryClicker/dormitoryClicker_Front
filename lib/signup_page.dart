@@ -221,79 +221,98 @@ class _SignUpPageState extends State<SignUpPage> {
                       child: ElevatedButton(
                         onPressed: () {
                           if(_formKey.currentState!.validate()) {
-                            _dormitory = '${_dormFirst![0]}${_dormFirst![1]}${_dormSecond![0]}';
-                            sendSignUpData(_userId!, _password!, _userName!, _dormitory!).then((value) {
-                              if(value == 'success'){
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        content: const Text("회원가입에 성공하였습니다."),
-                                        actions: [
-                                          Center(
-                                              child: ElevatedButton(
-                                                  onPressed: (){ Navigator.pop(context); },
-                                                  child: const Text("확인")
-                                              )
-                                          )
-                                        ],
-                                      );
-                                    }
-                                );
-                                Navigator.pop(context);
-                              } else if (value == 'Id exists') {
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        content: const Text("이미 존재하는 아이디입니다."),
-                                        actions: [
-                                          Center(
-                                              child: ElevatedButton(
-                                                  onPressed: (){ Navigator.pop(context); },
-                                                  child: const Text("확인")
-                                              )
-                                          )
-                                        ],
-                                      );
-                                    }
-                                );
-                              } else if (value == 'Bad request') {
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        content: const Text("입력이 정상적으로 이루어지지 않았습니다."),
-                                        actions: [
-                                          Center(
-                                              child: ElevatedButton(
-                                                  onPressed: (){ Navigator.pop(context); },
-                                                  child: const Text("확인")
-                                              )
-                                          )
-                                        ],
-                                      );
-                                    }
-                                );
-                              } else {
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        content: const Text("서버에 문제가 발생했습니다."),
-                                        actions: [
-                                          Center(
-                                              child: ElevatedButton(
-                                                  onPressed: (){ Navigator.pop(context); },
-                                                  child: const Text("확인")
-                                              )
-                                          )
-                                        ],
-                                      );
-                                    }
-                                );
-                              }
-                            });
+                            if (_password == _passCheck){
+                              _dormitory = '${_dormFirst![0]}${_dormFirst![1]}${_dormSecond![0]}';
+                              sendSignUpData(_userId!, _password!, _userName!, _dormitory!).then((value) {
+                                if(value == 'success'){
+                                  Navigator.pop(context);
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          content: const Text("회원가입에 성공하였습니다."),
+                                          actions: [
+                                            Center(
+                                                child: ElevatedButton(
+                                                    onPressed: (){ Navigator.pop(context); },
+                                                    child: const Text("확인")
+                                                )
+                                            )
+                                          ],
+                                        );
+                                      }
+                                  );
+                                } else if (value == 'Id exists') {
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          content: const Text("이미 존재하는 아이디입니다."),
+                                          actions: [
+                                            Center(
+                                                child: ElevatedButton(
+                                                    onPressed: (){ Navigator.pop(context); },
+                                                    child: const Text("확인")
+                                                )
+                                            )
+                                          ],
+                                        );
+                                      }
+                                  );
+                                } else if (value == 'Bad request') {
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          content: const Text("입력이 정상적으로 이루어지지 않았습니다."),
+                                          actions: [
+                                            Center(
+                                                child: ElevatedButton(
+                                                    onPressed: (){ Navigator.pop(context); },
+                                                    child: const Text("확인")
+                                                )
+                                            )
+                                          ],
+                                        );
+                                      }
+                                  );
+                                } else {
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          content: const Text("서버에 문제가 발생했습니다."),
+                                          actions: [
+                                            Center(
+                                                child: ElevatedButton(
+                                                    onPressed: (){ Navigator.pop(context); },
+                                                    child: const Text("확인")
+                                                )
+                                            )
+                                          ],
+                                        );
+                                      }
+                                  );
+                                }
+                              });
+                            } else {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: const Text("비밀번호 확인이 일치하지 않습니다."),
+                                      actions: [
+                                        Center(
+                                            child: ElevatedButton(
+                                                onPressed: (){ Navigator.pop(context); },
+                                                child: const Text("확인")
+                                            )
+                                        )
+                                      ],
+                                    );
+                                  }
+                              );
+                            }
                           }
                         },
                         style: ButtonStyle(

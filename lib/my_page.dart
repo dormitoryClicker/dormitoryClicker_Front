@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'user_info.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({Key? key}) : super(key: key);
@@ -14,34 +15,43 @@ class MyPage extends StatefulWidget {
 
 class _MyPageState extends State<MyPage> {
 
-  Future<void> getUserData(String userId) async {
+  Future<String> getUserData(String userId) async {
+    Map data = {'userId': userId};
+    var body = json.encode(data);
+
     http.Response res = await http.post(Uri.parse('http://localhost:8080/user'),
-        body: {
-          'userId': userId,
-        }
+        headers: {'Content-Type': "application/json"},
+        body: body
     );
 
     //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
     //여기서 res.body를 jsonDecode 함수로 객체로 만들어서 데이터를 처리할 수 있다.
     String jsonData = res.body;
-    Map<String, dynamic> userData = jsonDecode(jsonData);
 
-    userInfo.putUserId(userData['userId']);
-    userInfo.putPassword(userData['password']);
-    userInfo.putUserName(userData['userName']);
-    userInfo.putDormitory(userData['dormitory']);
-    List<String>? reservation = userData['reservation'];
-    if (reservation != null) {
-      userInfo.putCanReservation(false);
-      userInfo.putStartTime(reservation[0]);
-      userInfo.putEndTime(reservation[1]);
+    if (jsonData == "Not found userId with $userId") {
+      return "404: User Not Found";
+    } else if (jsonData == "Server Unavailable") {
+      return "500: Server Unavailable";
     } else {
-      userInfo.putCanReservation(true);
-      userInfo.putStartTime("");
-      userInfo.putEndTime("");
-    }
+      Map<String, dynamic> userData = jsonDecode(jsonData);
 
-    return; //작업이 끝났기 때문에 리턴
+      userInfo.putUserId(userData['userId']);
+      userInfo.putPassword(userData['password']);
+      userInfo.putUserName(userData['userName']);
+      userInfo.putDormitory(userData['dormitory']);
+      List<String>? reservation = userData['reservation'];
+      if (reservation != null) {
+        userInfo.putCanReservation(false);
+        userInfo.putStartTime(reservation[0]);
+        userInfo.putEndTime(reservation[1]);
+      } else {
+        userInfo.putCanReservation(true);
+        userInfo.putStartTime("");
+        userInfo.putEndTime("");
+      }
+
+      return "Success";
+    }
   }
 
   var userInfo;
@@ -111,226 +121,255 @@ class _MyPageState extends State<MyPage> {
           ],
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              height: 100,
-              margin: const EdgeInsets.all(12),
-              child: Column(
-                children: [
-                  Flexible(
-                    fit: FlexFit.tight,
-                    flex: 1,
-                    child: Row(
-                      children: const [
-                        Flexible(
-                            fit: FlexFit.tight,
-                            flex: 1,
-                            child: Text(
-                              "이름",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            )
-                        ),
-                        Flexible(
-                            fit: FlexFit.tight,
-                            flex: 1,
-                            child: Text(
-                              "학번",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            )
-                        ),
-                        Flexible(
-                            fit: FlexFit.tight,
-                            flex: 1,
-                            child: Text(
-                              "기숙사",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            )
-                        ),
-                      ],
-                    )
+      body: FutureBuilder(
+        future: getUserData(userInfo.getUserId()),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            return Center(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  Flexible(
-                    fit: FlexFit.tight,
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Flexible(
-                            fit: FlexFit.tight,
-                            flex: 1,
-                            child: Text(
-                              userInfo.getUserName(),
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 25,
+                  margin: const EdgeInsets.all(12),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Flexible(
+                          fit: FlexFit.tight,
+                          flex: 1,
+                          child: Row(
+                            children: const [
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: Text(
+                                    "이름",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                    ),
+                                  )
                               ),
-                            )
-                        ),
-                        Flexible(
-                            fit: FlexFit.tight,
-                            flex: 1,
-                            child: Text(
-                              userInfo.getUserId(),
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 25,
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: Text(
+                                    "학번",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                    ),
+                                  )
                               ),
-                            )
-                        ),
-                        Flexible(
-                            fit: FlexFit.tight,
-                            flex: 1,
-                            child: Text(
-                              userInfo.getDormitory(),
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 25,
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: Text(
+                                    "기숙사",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                    ),
+                                  )
                               ),
-                            )
-                        ),
-                      ],
-                    )
+                            ],
+                          )
+                      ),
+                      Flexible(
+                          fit: FlexFit.tight,
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: Text(
+                                    userInfo.getUserName(),
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 25,
+                                    ),
+                                  )
+                              ),
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: Text(
+                                    userInfo.getUserId(),
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 25,
+                                    ),
+                                  )
+                              ),
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: Text(
+                                    userInfo.getDormitory(),
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 25,
+                                    ),
+                                  )
+                              ),
+                            ],
+                          )
+                      ),
+
+                      const Divider(),
+
+                      Flexible(
+                          flex: 7,
+                          fit: FlexFit.tight,
+                          child: TimerBuilder.periodic(
+                              const Duration(seconds: 1),
+                              builder: (context) {
+                                return Center(
+                                    child: Column(
+                                      children: [
+                                        Flexible(
+                                            fit: FlexFit.tight,
+                                            flex: 1,
+                                            child: Center(
+                                              child: Text(
+                                                userInfo.getCanReservation() ?
+                                                "예약 내역이 없습니다" : "예약 내역이 있습니다",
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 30,
+                                                ),
+                                              ),
+                                            )
+                                        ),
+                                        Visibility(
+                                          visible: userInfo.getCanReservation() ?
+                                          false : true,
+                                          child: Flexible(
+                                              fit: FlexFit.tight,
+                                              flex: 1,
+                                              child: Center(
+                                                child: Text(
+                                                  userInfo.getCanReservation() ? "" :
+                                                  "${tempStartTime.month}월 ${tempStartTime.day}일 "
+                                                      "${tempStartTime.hour}시 ${tempStartTime.minute}분"
+                                                      " - "
+                                                      "${tempEndTime.month}월 ${tempEndTime.day}일 "
+                                                      "${tempEndTime.hour}시 ${tempEndTime.minute}분",
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 20,
+                                                  ),
+                                                ),
+                                              )
+                                          ),
+                                        ),
+                                        Visibility(
+                                          visible: userInfo.getCanReservation() ?
+                                          false : true,
+                                          child: Flexible(
+                                              fit: FlexFit.tight,
+                                              flex: 1,
+                                              child: Center(
+                                                child: Text(
+                                                  userInfo.getCanReservation() ? "" :
+                                                  calculateTimeDifference(startTime: tempStartTime, endTime: tempEndTime),
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 20,
+                                                  ),
+                                                ),
+                                              )
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                );
+                              }
+                          )
+                      ),
+
+                      const Divider(),
+
+                      Flexible(
+                          flex: 1,
+                          fit: FlexFit.tight,
+                          child: Row(
+                            children: [
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: IconButton(
+                                      onPressed: (){
+                                        Navigator.pushNamed(context, '/setting');
+                                      },
+                                      icon: const Icon(Icons.settings)
+                                  )
+                              ),
+                              Flexible(
+                                  fit: FlexFit.tight,
+                                  flex: 1,
+                                  child: IconButton(
+                                      onPressed: (){
+                                        // userInfo.putUserId("");
+                                        // userInfo.putPassword("");
+                                        // userInfo.putUserName("");
+                                        // userInfo.putDormitory("");
+                                        // userInfo.putCanReservation(true);
+                                        // userInfo.putMachineNum("");
+                                        // userInfo.putStartTime("");
+                                        // userInfo.putEndTime("");
+                                        Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
+                                      },
+                                      icon: const Icon(Icons.logout)
+                                  )
+                              )
+                            ],
+                          )
+                      )
+                    ],
                   ),
-                ],
-              )
-            ),
-            Expanded(
+                )
+            );
+          } else if (snapshot.hasError) {
+            return Center(
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.black),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                margin: const EdgeInsets.only(left: 12.0, right: 12.0),
-                child: TimerBuilder.periodic(
-                  const Duration(seconds: 1),
-                  builder: (context) {
-                    return Center(
-                      child: Column(
-                        children: [
-                          Flexible(
-                            fit: FlexFit.tight,
-                            flex: 1,
-                            child: Center(
-                              child: Text(
-                                userInfo.getCanReservation() ?
-                                "예약 내역이 없습니다" : "예약 내역이 있습니다",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 30,
-                                ),
-                              ),
-                            )
-                          ),
-                          Visibility(
-                            visible: userInfo.getCanReservation() ?
-                            false : true,
-                            child: Flexible(
-                              fit: FlexFit.tight,
-                              flex: 1,
-                              child: Center(
-                                child: Text(
-                                  userInfo.getCanReservation() ? "" :
-                                  "${tempStartTime.month}월 ${tempStartTime.day}일 "
-                                      "${tempStartTime.hour}시 ${tempStartTime.minute}분"
-                                      " - "
-                                      "${tempEndTime.month}월 ${tempEndTime.day}일 "
-                                      "${tempEndTime.hour}시 ${tempEndTime.minute}분",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              )
-                            ),
-                          ),
-                          Visibility(
-                            visible: userInfo.getCanReservation() ?
-                            false : true,
-                            child: Flexible(
-                              fit: FlexFit.tight,
-                              flex: 1,
-                              child: Center(
-                                child: Text(
-                                  userInfo.getCanReservation() ? "" :
-                                  calculateTimeDifference(startTime: tempStartTime, endTime: tempEndTime),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              )
-                            ),
-                          ),
-                        ],
-                      )
-                    );
-                  }
+                margin: const EdgeInsets.all(12),
+                child: Text(
+                  'Error: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
+                  style: TextStyle(fontSize: 15),
                 )
               )
-            ),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              height: 70,
-              margin: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Flexible(
-                    fit: FlexFit.tight,
-                    flex: 1,
-                    child: IconButton(
-                      onPressed: (){
-                        Navigator.pushNamed(context, '/setting');
-                      },
-                      icon: const Icon(Icons.settings)
+            );
+          } else {
+            return Center(
+                child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    margin: const EdgeInsets.all(12),
+                    child: const Center(
+                      child: SpinKitFadingCircle(
+                        color: Colors.black,
+                        size: 80.0,
+                      ),
                     )
-                  ),
-                  Flexible(
-                    fit: FlexFit.tight,
-                    flex: 1,
-                    child: IconButton(
-                      onPressed: (){
-                        // userInfo.putUserId("");
-                        // userInfo.putPassword("");
-                        // userInfo.putUserName("");
-                        // userInfo.putDormitory("");
-                        // userInfo.putCanReservation(true);
-                        // userInfo.putMachineNum("");
-                        // userInfo.putStartTime("");
-                        // userInfo.putEndTime("");
-                        Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
-                      },
-                      icon: const Icon(Icons.logout)
-                    )
-                  )
-                ],
-              )
-            ),
-          ],
-        ),
+                )
+            );
+          }
+        },
       )
     );
   }

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dorm_data.dart';
 import 'user_info.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -31,11 +33,49 @@ class _HomePageState extends State<HomePage> {
     if (jsonData == "Server Unavailable") { return "500: Server Unavailable"; }
     else if (jsonData == "Not found userId with $userId") { return "404: User Not Found"; }
     else {
-      for(int i = 0; i < json.decode(jsonData).length; i++){
-        dormData.machines[i]['machineNum'] = json.decode(jsonData)[i]['machineNum'];
-        dormData.machines[i]['state'] = json.decode(jsonData)[i]['state'];
+      userInfo.putUserId(json.decode(jsonData)['userId']);
+      userInfo.putDormitory(json.decode(jsonData)['dormitory']);
+      userInfo.putCanReservation(json.decode(jsonData)['canReservation'] == 1 ? true : false);
+
+      for(int i = 0; i < json.decode(jsonData)['machineStatus'].length; i++){
+        dormData.machines[i]['machineNum'] = json.decode(jsonData)['machineStatus'][i]['machineNum'];
+        dormData.machines[i]['state'] = json.decode(jsonData)['machineStatus'][i]['state'];
       }
+
+
       return "Success";
+    }
+  }
+
+  void _sendEmail() async {
+    final Email email = Email(
+      body: '',
+      subject: '[세탁기 클리커 사용 문의]',
+      recipients: ['20180088@kumoh.ac.kr'],
+      cc: [],
+      bcc: [],
+      attachmentPaths: [],
+      isHTML: false,
+    );
+
+    try {
+      await FlutterEmailSender.send(email);
+    } catch(error) {
+      String title = "기본 메일 앱을 사용할 수 없기 때문에 앱에서 바로 문의를 전송하기 어려운 상황입니다.";
+      //String message = "";
+      return showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(title),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('확인')),
+          ],
+        ),
+      );
     }
   }
 
@@ -119,9 +159,7 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 title: const Text("문의/건의"),
                 onTap: () {
-                  /*************************************/
-                  /**************이메일 API*************/
-                  /*************************************/
+                  _sendEmail();
                 },
                 trailing: const Icon(Icons.arrow_forward_ios),
               ),
@@ -343,7 +381,6 @@ class _HomePageState extends State<HomePage> {
                 future: getMachineData(userInfo.getUserId()),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasData) {
-                    print(dormData.machines);
                     return Flexible(
                       flex: 8,
                       fit: FlexFit.tight,
@@ -430,7 +467,12 @@ class _HomePageState extends State<HomePage> {
                               border: Border.all(color: Colors.black),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const CircularProgressIndicator()
+                            child: const Center(
+                              child: SpinKitFadingCircle(
+                                color: Colors.black,
+                                size: 80.0,
+                              ),
+                            )
                         )
                     );
                   }
