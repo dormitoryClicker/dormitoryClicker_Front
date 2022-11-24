@@ -40,8 +40,6 @@ class _HomePageState extends State<HomePage> {
     if (jsonData == "Server Unavailable") { return "500: Server Unavailable"; }
     else if (jsonData == "Not found userId with ${userInfo.getUserId()}") { return "404: User Not Found"; }
     else {
-      print(json.decode(jsonData));
-
       userInfo.putUserId(json.decode(jsonData)['userId']);
       userInfo.putDormitory(json.decode(jsonData)['dormitory']);
       userInfo.putCanReservation(json.decode(jsonData)['canReservation'] == 1 ? true : false);

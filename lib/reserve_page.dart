@@ -51,10 +51,10 @@ class _ReservePageState extends State<ReservePage> {
 
   Future _getDataSetting1(String dormitory, String machineNum)
     => _memoizer.runOnce(() => getReservationData(dormitory, machineNum));
-  Future _getDataSetting2(String userId, String dormitory, String machineNum, DateTime startDatetime, DateTime endDatetime)
-    => _memoizer.runOnce(() => putReservationData(userId, dormitory, machineNum, startDatetime, endDatetime));
 
   Future<String> getReservationData(String dormitory, String machineNum) async {
+    print(machineNum);
+
     http.Response res = await http.get(Uri.parse(
         'http://localhost:8080/reservation?dormitory=$dormitory&machineNum=$machineNum'
     ));
@@ -66,8 +66,8 @@ class _ReservePageState extends State<ReservePage> {
     if (jsonData == "There's no machine") { return "404: Machine Not Found"; }
     else {
       for(int i = 0; i < jsonDecode(jsonData)['startDatetime']!.length; i++){
-        reservationData.reservations['startDatetime'].add(jsonDecode(jsonData)['startDatetime']![i]);
-        reservationData.reservations['endDatetime'].add(jsonDecode(jsonData)['endDatetime']![i]);
+        reservationData.reservations['startDatetime'].add(DateTime.parse(jsonDecode(jsonData)['startDatetime']![i]));
+        reservationData.reservations['endDatetime'].add(DateTime.parse(jsonDecode(jsonData)['endDatetime']![i]));
       }
 
       return "Success";
@@ -129,57 +129,6 @@ class _ReservePageState extends State<ReservePage> {
   }
   /**********************************************************************/
 
-
-  /*******************************예약하기*******************************/
-  String message = '';
-  String my_r_time = '';
-  void getReserve ({required String day, required DateTime startTime, required DateTime endTime}) {
-    DateTime newStartTime = DateTime.parse('$day ${MyTime.startHour}:${MyTime.startMin}:00');
-    DateTime newEndTime = DateTime.parse('$day ${MyTime.endHour}:${MyTime.endMin}:00');
-
-    if(userInfo.getCanReservation() == true){  // 예약을 할 수 있는가?
-      if(MyTime.isStartTimeSelected == false || MyTime.isEndTimeSelected == false) {
-        message = '시간을 지정해주세요.';
-      }
-      else {
-        _getDataSetting2(
-          userInfo.getUserId(), userInfo.getDormitory(),
-          userInfo.getMachineNum(),
-          newStartTime, newEndTime
-        ).then((value) {
-          if(value == "already reservation"){
-            message = '이미 예약된 내역이 있습니다.';
-          } else if (value == "There's no machine") {
-            message = '기기 확인이 불가능합니다.';
-          } else {
-            userInfo.putCanReservation(false);
-            userInfo.putStartTime(DateFormat('yyyy-MM-dd HH:mm:00').format(newStartTime));
-            userInfo.putEndTime(DateFormat('yyyy-MM-dd HH:mm:00').format(newEndTime));
-
-            message = '예약되었습니다.';
-            my_r_time = "${userInfo.getStartTime().month}월 ${userInfo.getStartTime().day}일 "
-                "${userInfo.getStartTime().hour}시 ${userInfo.getStartTime().minute}분"
-                " - "
-                "${userInfo.getEndTime().month}월 ${userInfo.getEndTime().day}일 "
-                "${userInfo.getEndTime().hour}시 ${userInfo.getEndTime().minute}분";
-            message += "\n\n$my_r_time";
-          }
-        });
-      }
-    }
-    else {
-      message = '예약을 이미 하셨습니다.';
-      my_r_time = "${startTime.month}월 ${startTime.day}일 "
-          "${startTime.hour}시 ${startTime.minute}분"
-          " - "
-          "${endTime.month}월 ${endTime.day}일 "
-          "${endTime.hour}시 ${endTime.minute}분";
-      message += "\n\n${my_r_time}";
-    }
-  }
-  /**********************************************************************/
-
-
   /****************************리스트 뷰 관련*****************************/
   final List<String> startTimeList = [
     '00시 00분', '00시 30분', '01시 00분', '01시 30분', '02시 00분', '02시 30분', '03시 00분', '03시 30분', '04시 00분', '04시 30분', '05시 00분', '05시 30분', '06시 00분',
@@ -226,8 +175,9 @@ class _ReservePageState extends State<ReservePage> {
     return null;
   }
 
-  void clearListView(){
+  ReservationData clearListView(ReservationData reservationData){
     Map<String, List<DateTime>> tempMachine = reservationData.reservations;
+
     List<DateTime>? tempStartTime = tempMachine['startDatetime'];
     List<DateTime>? tempEndTime = tempMachine['endDatetime'];
     List<int> disableStartTimeList = List<int>.empty(growable: true);
@@ -250,6 +200,10 @@ class _ReservePageState extends State<ReservePage> {
             && tempEnd[11] + tempEnd[12] == endTimeList[j][0] + endTimeList[j][1]
             && tempEnd[14] + tempEnd[15] == endTimeList[j][4] + endTimeList[j][5]){
           disableEndTimeList.add(j);
+        } else if(tempEnd[8] + tempEnd[9] == NumberFormat('00').format(int.parse(MyTime.set_Day[8] + MyTime.set_Day[9]) + 1)
+            && tempEnd[11] + tempEnd[12] == "00"
+            && endTimeList[j][0] + endTimeList[j][1] == "24"){
+          disableEndTimeList.add(j);
         }
       }
     }
@@ -271,22 +225,22 @@ class _ReservePageState extends State<ReservePage> {
       }
     }
 
+    int nowTime = int.parse(DateTime.now().hour.toString()) * 60 + int.parse(DateTime.now().minute.toString());
+
+    for(int i = 0; i < isEnableTile[0].length; i++){
+      int tempHour = int.parse(startTimeList[i][0] + startTimeList[i][1]);
+      int tempMin = int.parse(startTimeList[i][4] + startTimeList[i][5]);
+      if(tempHour * 60 + tempMin <= nowTime){
+        isEnableTile[0][i] = false;
+        listViewState[0][i] = 0;
+      }
+    }
+
     for(int i = 0; i < disableStartTimeList.length; i++){
       for(int j = disableStartTimeList[i]; j <= disableEndTimeList[i]; j++){
         if (dDay_0 == true) {
           isEnableTile[0][j] = false;
           listViewState[0][j] = 0;
-
-          int nowTime = int.parse(DateTime.now().hour.toString()) * 60 + int.parse(DateTime.now().minute.toString());
-
-          for(int k = 0; k < isEnableTile[0].length; k++){
-            int tempHour = int.parse(startTimeList[k][0] + startTimeList[k][1]);
-            int tempMin = int.parse(startTimeList[k][4] + startTimeList[k][5]);
-            if(tempHour * 60 + tempMin <= nowTime){
-              isEnableTile[0][k] = false;
-              listViewState[0][k] = 0;
-            }
-          }
         } else if (dDay_1 == true) {
           isEnableTile[1][j] = false;
           listViewState[1][j] = 0;
@@ -296,6 +250,8 @@ class _ReservePageState extends State<ReservePage> {
         }
       }
     }
+
+    return reservationData;
   }
   /**********************************************************************/
 
@@ -330,6 +286,8 @@ class _ReservePageState extends State<ReservePage> {
                           ),
                           onPressed: () {
                             MyTime.popping();
+                            reservationData.reservations['startDatetime'].clear();
+                            reservationData.reservations['endDatetime'].clear();
                             Navigator.pop(context);
                           },
                         ),
@@ -399,7 +357,9 @@ class _ReservePageState extends State<ReservePage> {
                                 isSelected: isSelected,
                                 onPressed: (value){
                                   toggleSelect(value);
-                                  clearListView();
+                                  setState(() {
+                                    reservationData = clearListView(reservationData);
+                                  });
                                 },
                                 children: [
                                   Padding(
@@ -478,7 +438,7 @@ class _ReservePageState extends State<ReservePage> {
                                           child: ElevatedButton(
                                             onPressed: (){
                                               setState(() {
-                                                clearListView();
+                                                reservationData = clearListView(reservationData);
                                               });
                                             },
                                             child: const Text("초기화"),
@@ -489,29 +449,99 @@ class _ReservePageState extends State<ReservePage> {
                                           margin: const EdgeInsets.only(right: 10.0, left: 10.0),
                                           child: ElevatedButton(
                                             onPressed: (){
-                                              getReserve(day: MyTime.set_Day, startTime: userInfo.getStartTime(), endTime: userInfo.getEndTime());
-                                              showDialog(
-                                                  context: context,
-                                                  builder: (BuildContext context) {
-                                                    return AlertDialog(
-                                                      content: Text(message),
-                                                      actions: [
-                                                        Center(
-                                                          child: ElevatedButton(
-                                                            child: const Text('확인'),
-                                                            onPressed: () {
-                                                              if(message == '예약되었습니다.\n\n$my_r_time'){
-                                                                Navigator.pushNamed(context, '/mypage');
-                                                              } else {
+                                              DateTime newStartTime = DateTime.parse('${MyTime.set_Day} ${MyTime.startHour}:${MyTime.startMin}:00');
+                                              DateTime newEndTime = DateTime.parse('${MyTime.set_Day} ${MyTime.endHour}:${MyTime.endMin}:00');
+
+                                              if(MyTime.isStartTimeSelected == false || MyTime.isEndTimeSelected == false) {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (BuildContext context) {
+                                                      return AlertDialog(
+                                                        content: const Text('시간을 지정해주세요.'),
+                                                        actions: [
+                                                          Center(
+                                                            child: ElevatedButton(
+                                                              child: const Text('확인'),
+                                                              onPressed: () {
                                                                 Navigator.pop(context);
-                                                              }
-                                                            },
+                                                              },
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ],
+                                                        ],
+                                                      );
+                                                    }
+                                                );
+                                              } else {
+                                                putReservationData(userInfo.getUserId(), userInfo.getDormitory(), userInfo.getMachineNum(), newStartTime, newEndTime).then((value) {
+                                                  if(value == "already reservation"){
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext context) {
+                                                          return AlertDialog(
+                                                            content: const Text('이미 예약된 내역이 있습니다.'),
+                                                            actions: [
+                                                              Center(
+                                                                child: ElevatedButton(
+                                                                  child: const Text('확인'),
+                                                                  onPressed: () {
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        }
+                                                    );
+                                                  } else if (value == "There's no machine") {
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext context) {
+                                                          return AlertDialog(
+                                                            content: const Text('기기 확인이 불가능합니다.'),
+                                                            actions: [
+                                                              Center(
+                                                                child: ElevatedButton(
+                                                                  child: const Text('확인'),
+                                                                  onPressed: () {
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        }
+                                                    );
+                                                  } else if (value == "success") {
+                                                    userInfo.putCanReservation(false);
+                                                    userInfo.putStartTime(DateFormat('yyyy-MM-dd HH:mm:00').format(newStartTime));
+                                                    userInfo.putEndTime(DateFormat('yyyy-MM-dd HH:mm:00').format(newEndTime));
+
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext context) {
+                                                          return AlertDialog(
+                                                            content: Text("예약되었습니다.\n\n"
+                                                                "${userInfo.getStartTime().month}월 ${userInfo.getStartTime().day}일 "
+                                                                "${userInfo.getStartTime().hour}시 ${userInfo.getStartTime().minute}분"
+                                                                " - "
+                                                                "${userInfo.getEndTime().month}월 ${userInfo.getEndTime().day}일 "
+                                                                "${userInfo.getEndTime().hour}시 ${userInfo.getEndTime().minute}분"),
+                                                            actions: [
+                                                              Center(
+                                                                child: ElevatedButton(
+                                                                  child: const Text('확인'),
+                                                                  onPressed: () {
+                                                                    Navigator.pushNamed(context, '/mypage');
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        }
                                                     );
                                                   }
-                                              );
+                                                });
+                                              }
                                             },
                                             child: const Text("예약"),
                                           ),
@@ -653,7 +683,7 @@ class _ReservePageState extends State<ReservePage> {
                           );
                         }
                       );
-                      clearListView();
+                      reservationData = clearListView(reservationData);
                       break;
                     } else {
                       listViewState[flag][i] = 1;

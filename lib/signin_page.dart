@@ -16,11 +16,6 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   final _formKey = GlobalKey<FormState>();
 
-  final AsyncMemoizer _memoizer = AsyncMemoizer();
-
-  Future _getDataSetting(String userId, String password)
-  => _memoizer.runOnce(() => sendSignInData(userId, password));
-
   Future<String> sendSignInData(String userId, String password) async {
     http.Response res = await http.post(Uri.parse('http://localhost:8080/signin'),
         body: {
@@ -151,7 +146,7 @@ class _SignInPageState extends State<SignInPage> {
                               child: ElevatedButton(
                                 onPressed: () {
                                   if(_formKey.currentState!.validate()) {
-                                    _getDataSetting(_tempId!, _tempPw!).then((value) {
+                                    sendSignInData(_tempId!, _tempPw!).then((value) {
                                       if(value == 'failed'){
                                         showDialog(
                                             context: context,

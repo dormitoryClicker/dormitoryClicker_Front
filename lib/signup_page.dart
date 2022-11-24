@@ -13,11 +13,6 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
 
-  final AsyncMemoizer _memoizer = AsyncMemoizer();
-
-  Future _getDataSetting(String userId, String password, String userName, String dormitory)
-  => _memoizer.runOnce(() => sendSignUpData(userId, password, userName, dormitory));
-
   Future<String> sendSignUpData(String userId, String password, String userName, String dormitory) async {
     http.Response res = await http.post(Uri.parse('http://localhost:8080/signup'),
         body: {
@@ -229,7 +224,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           if(_formKey.currentState!.validate()) {
                             if (_password == _passCheck){
                               _dormitory = '${_dormFirst![0]}${_dormFirst![1]}${_dormSecond![0]}';
-                              _getDataSetting(_userId!, _password!, _userName!, _dormitory!).then((value) {
+                              sendSignUpData(_userId!, _password!, _userName!, _dormitory!).then((value) {
                                 if(value == 'success'){
                                   Navigator.pop(context);
                                   showDialog(
