@@ -130,6 +130,7 @@ class _ReservePageState extends State<ReservePage> {
   void getReserve ({required String day, required DateTime startTime, required DateTime endTime}) {
     DateTime newStartTime = DateTime.parse('$day ${MyTime.startHour}:${MyTime.startMin}:00');
     DateTime newEndTime = DateTime.parse('$day ${MyTime.endHour}:${MyTime.endMin}:00');
+    print(newStartTime);
 
     if(userInfo.getCanReservation() == true){  // 예약을 할 수 있는가?
       if(MyTime.isStartTimeSelected == false || MyTime.isEndTimeSelected == false) {
