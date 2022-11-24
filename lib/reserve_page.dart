@@ -53,8 +53,6 @@ class _ReservePageState extends State<ReservePage> {
     => _memoizer.runOnce(() => getReservationData(dormitory, machineNum));
 
   Future<String> getReservationData(String dormitory, String machineNum) async {
-    print(machineNum);
-
     http.Response res = await http.get(Uri.parse(
         'http://localhost:8080/reservation?dormitory=$dormitory&machineNum=$machineNum'
     ));
