@@ -42,7 +42,6 @@ class _HomePageState extends State<HomePage> {
         dormData.machines[i]['state'] = json.decode(jsonData)['machineStatus'][i]['state'];
       }
 
-
       return "Success";
     }
   }

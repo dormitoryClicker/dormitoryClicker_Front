@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:timer_builder/timer_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -33,17 +34,14 @@ class _MyPageState extends State<MyPage> {
     } else if (jsonData == "Server Unavailable") {
       return "500: Server Unavailable";
     } else {
-      Map<String, dynamic> userData = jsonDecode(jsonData);
-
-      userInfo.putUserId(userData['userId']);
-      userInfo.putPassword(userData['password']);
-      userInfo.putUserName(userData['userName']);
-      userInfo.putDormitory(userData['dormitory']);
-      List<String>? reservation = userData['reservation'];
-      if (reservation != null) {
+      userInfo.putUserId(jsonDecode(jsonData)['userId']);
+      userInfo.putPassword(jsonDecode(jsonData)['password']);
+      userInfo.putUserName(jsonDecode(jsonData)['userName']);
+      userInfo.putDormitory(jsonDecode(jsonData)['dormitory']);
+      if (jsonDecode(jsonData)['reservation_time'] != null) {
         userInfo.putCanReservation(false);
-        userInfo.putStartTime(reservation[0]);
-        userInfo.putEndTime(reservation[1]);
+        userInfo.putStartTime(jsonDecode(jsonData)['reservation_time']['start']);
+        userInfo.putEndTime(jsonDecode(jsonData)['reservation_time']['end']);
       } else {
         userInfo.putCanReservation(true);
         userInfo.putStartTime("");
@@ -59,9 +57,6 @@ class _MyPageState extends State<MyPage> {
   @override
   Widget build(BuildContext context) {
     userInfo = Provider.of<UserInfo>(context, listen: true);
-
-    DateTime tempStartTime = userInfo.getStartTime();
-    DateTime tempEndTime = userInfo.getEndTime();
 
     String calculateTimeDifference(
         {required DateTime? startTime, required DateTime? endTime}) {
@@ -258,11 +253,11 @@ class _MyPageState extends State<MyPage> {
                                               child: Center(
                                                 child: Text(
                                                   userInfo.getCanReservation() ? "" :
-                                                  "${tempStartTime.month}월 ${tempStartTime.day}일 "
-                                                      "${tempStartTime.hour}시 ${tempStartTime.minute}분"
+                                                  "${userInfo.getStartTime().month}월 ${userInfo.getStartTime().day}일 "
+                                                      "${userInfo.getStartTime().hour}시 ${userInfo.getStartTime().minute}분"
                                                       " - "
-                                                      "${tempEndTime.month}월 ${tempEndTime.day}일 "
-                                                      "${tempEndTime.hour}시 ${tempEndTime.minute}분",
+                                                      "${userInfo.getEndTime().month}월 ${userInfo.getEndTime().day}일 "
+                                                      "${userInfo.getEndTime().hour}시 ${userInfo.getEndTime().minute}분",
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 20,
@@ -280,7 +275,7 @@ class _MyPageState extends State<MyPage> {
                                               child: Center(
                                                 child: Text(
                                                   userInfo.getCanReservation() ? "" :
-                                                  calculateTimeDifference(startTime: tempStartTime, endTime: tempEndTime),
+                                                  calculateTimeDifference(startTime: userInfo.getStartTime(), endTime: userInfo.getEndTime()),
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 20,

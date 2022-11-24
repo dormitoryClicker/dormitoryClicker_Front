@@ -54,12 +54,10 @@ class _ReservePageState extends State<ReservePage> {
     //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
     //여기서 res.body를 jsonDecode 함수로 객체로 만들어서 데이터를 처리할 수 있다.
     String jsonData = res.body;
-    print(jsonDecode(jsonData));
 
     if (jsonData == "There's no machine") { return "404: Machine Not Found"; }
     else {
       for(int i = 0; i < jsonDecode(jsonData)['startDatetime']!.length; i++){
-        // print(jsonDecode(jsonData)['startDatetime']);
         reservationData.reservations['startDatetime'].add(jsonDecode(jsonData)['startDatetime']![i]);
         reservationData.reservations['endDatetime'].add(jsonDecode(jsonData)['endDatetime']![i]);
       }
@@ -75,7 +73,7 @@ class _ReservePageState extends State<ReservePage> {
           'dormitory': dormitory,
           'machineNum': machineNum,
           'startDatetime': DateFormat('yyyy-MM-dd HH:mm:00').format(startDatetime),
-          'endDatetime': DateFormat('yyyy-MM-dd HH:mm:00').format(startDatetime),
+          'endDatetime': DateFormat('yyyy-MM-dd HH:mm:00').format(endDatetime),
         }
     );
 
@@ -130,7 +128,6 @@ class _ReservePageState extends State<ReservePage> {
   void getReserve ({required String day, required DateTime startTime, required DateTime endTime}) {
     DateTime newStartTime = DateTime.parse('$day ${MyTime.startHour}:${MyTime.startMin}:00');
     DateTime newEndTime = DateTime.parse('$day ${MyTime.endHour}:${MyTime.endMin}:00');
-    print(newStartTime);
 
     if(userInfo.getCanReservation() == true){  // 예약을 할 수 있는가?
       if(MyTime.isStartTimeSelected == false || MyTime.isEndTimeSelected == false) {
