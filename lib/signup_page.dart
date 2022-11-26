@@ -1,7 +1,6 @@
-import 'package:async/async.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -11,6 +10,11 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  }
+
   final _formKey = GlobalKey<FormState>();
 
   Future<String> sendSignUpData(String userId, String password, String userName, String dormitory) async {

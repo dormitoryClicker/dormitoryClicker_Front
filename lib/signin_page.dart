@@ -1,9 +1,7 @@
-import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'user_info.dart';
 
 class SignInPage extends StatefulWidget {
@@ -14,6 +12,11 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  }
+
   final _formKey = GlobalKey<FormState>();
 
   Future<String> sendSignInData(String userId, String password) async {
