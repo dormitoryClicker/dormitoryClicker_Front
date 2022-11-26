@@ -334,10 +334,10 @@ class _MyPageState extends State<MyPage> {
                                                   crossAxisAlignment: CrossAxisAlignment.center,
                                                   mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
-                                                    Icon(Icons.timelapse),
+                                                    const Icon(Icons.timelapse),
                                                     Text(
                                                       userInfo.getCanReservation() ? "" :
-                                                      '${calculateTimeDifference(startTime: userInfo.getStartTime(), endTime: userInfo.getEndTime())}',
+                                                      calculateTimeDifference(startTime: userInfo.getStartTime(), endTime: userInfo.getEndTime()),
                                                       style: const TextStyle(
                                                         fontWeight: FontWeight.bold,
                                                         fontSize: 20,
