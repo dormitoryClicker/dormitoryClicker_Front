@@ -10,11 +10,6 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  void initState() {
-    super.initState();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-  }
-
   final _formKey = GlobalKey<FormState>();
 
   Future<String> sendSignUpData(String userId, String password, String userName, String dormitory) async {

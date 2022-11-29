@@ -17,12 +17,6 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
-
-  void initState() {
-    super.initState();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-  }
-
   final AsyncMemoizer _memoizer = AsyncMemoizer();
 
   Future _getDataSetting(String userId)
@@ -146,26 +140,30 @@ class _MyPageState extends State<MyPage> {
         elevation: 0.0,
       ),
       drawer: Drawer(
-
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              accountName: const Text(""),
-              accountEmail: Text(userInfo.getUserId()),
+              accountName: Text(
+                userInfo.getUserId(),
+                style: const TextStyle(
+                    fontSize: 30
+                ),
+              ),
+              accountEmail: const Text(""),
               decoration: BoxDecoration(color: Colors.blue[300]),
             ),
             ListTile(
               title: const Text("홈"),
               onTap: () {
-                Navigator.pushNamed(context, '/');
+                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
               },
               trailing: const Icon(Icons.arrow_forward_ios),
             ),
             ListTile(
               title: const Text("마이페이지"),
               onTap: () {
-                Navigator.pushNamed(context, '/mypage');
+                Navigator.pushReplacementNamed(context, '/mypage');
               },
               trailing: const Icon(Icons.arrow_forward_ios),
             ),

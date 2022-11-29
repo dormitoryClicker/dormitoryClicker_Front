@@ -19,11 +19,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  void initState() {
-    super.initState();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-  }
-
   final AsyncMemoizer _memoizer = AsyncMemoizer();
 
   Future _getDataSetting() => _memoizer.runOnce(() => getMachineData());
@@ -139,7 +134,7 @@ class _HomePageState extends State<HomePage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text("홈"),
+          title: const Text("홈"),
           centerTitle: true,
           elevation: 0.0,
         ),
@@ -160,7 +155,7 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 title: const Text("홈"),
                 onTap: () {
-                  Navigator.pushNamed(context, '/');
+                  Navigator.pushReplacementNamed(context, '/');
                 },
                 trailing: const Icon(Icons.arrow_forward_ios),
               ),
