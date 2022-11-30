@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -91,13 +93,8 @@ class _ReservePageState extends State<ReservePage> {
   bool dDay_2 = false;
   late List<bool> isDateSelected;
 
-  bool duration1H = false;
-  bool duration2H = false;
-  late List<bool> isDurationSelected;
-
   void initState(){
     isDateSelected = [dDay_0, dDay_1, dDay_2];
-    isDurationSelected = [duration1H, duration2H];
     super.initState();
   }
 
@@ -127,21 +124,7 @@ class _ReservePageState extends State<ReservePage> {
       isDateSelected = [dDay_0, dDay_1, dDay_2];
     });
   }
-
-  void toggleDurationSelect(value) {
-    if (value == 0) {
-      duration1H = true;
-      duration2H = false;
-    }
-    else if (value == 1) {
-      duration1H = false;
-      duration2H = true;
-    }
-    setState(() {
-      isDurationSelected = [duration1H, duration2H];
-    });
-  }
-  /**********************************************************************/
+  /*************************************************************/
 
 
   /****************************리스트 뷰 관련*****************************/
@@ -149,10 +132,13 @@ class _ReservePageState extends State<ReservePage> {
     '00시', '01시', '02시', '03시', '04시', '05시', '06시', '07시', '08시', '09시', '10시', '11시',
     '12시', '13시', '14시', '15시', '16시', '17시', '18시', '19시', '20시', '21시', '22시', '23시'
   ];
+  final List<String> durationList = ['1시간', '2시간'];
 
   int count = 0;
   int? selectedStartIndex;
   int? selectedEndIndex;
+  int durationCount = 0;
+  int? selectedDurationIndex;
 
   List<List<bool>> isEnableTile = [
     List.generate(24, (i) => true),
@@ -164,22 +150,48 @@ class _ReservePageState extends State<ReservePage> {
     List.generate(24, (i) => 2),
     List.generate(24, (i) => 2)
   ];
+  List<bool> isEnableDuration = [true, true];
+  List<int> durationState = [2, 2];
+
+  List<List<int>> disableStartTimeList = [
+    List<int>.empty(growable: true),
+    List<int>.empty(growable: true),
+    List<int>.empty(growable: true)
+  ];
+  List<List<int>> disableEndTimeList = [
+    List<int>.empty(growable: true),
+    List<int>.empty(growable: true),
+    List<int>.empty(growable: true),
+  ];
+  List<int> disableDurationList = List<int>.empty(growable: true);
 
   Color? setListViewColor(int index){
     if (dDay_0 == true) {
-      if(listViewState[0][index] == 0) return Colors.black26;
-      else if(listViewState[0][index] == 1) return Colors.greenAccent;
-      else return Colors.white;
+      if(listViewState[0][index] == 0) { return Colors.black26; }
+      else if(listViewState[0][index] == 1) { return Colors.greenAccent; }
+      else { return Colors.white; }
     } else if (dDay_1 == true) {
-      if(listViewState[1][index] == 0) return Colors.black26;
-      else if(listViewState[1][index] == 1) return Colors.greenAccent;
-      else return Colors.white;
+      if(listViewState[1][index] == 0) { return Colors.black26; }
+      else if(listViewState[1][index] == 1) { return Colors.greenAccent; }
+      else { return Colors.white; }
     } else if (dDay_2 == true) {
-      if(listViewState[2][index] == 0) return Colors.black26;
-      else if(listViewState[2][index] == 1) return Colors.greenAccent;
-      else return Colors.white;
+      if(listViewState[2][index] == 0) { return Colors.black26; }
+      else if(listViewState[2][index] == 1) { return Colors.greenAccent; }
+      else { return Colors.white; }
     }
     return null;
+  }
+  Color? setDurationColor(int index){
+    if (durationState[index] == 0) { return Colors.black26; }
+    else if (durationState[index] == 1) { return Colors.greenAccent; }
+    else { return Colors.white; }
+  }
+
+  bool isPastTime(int index) {
+    if (DateTime.now().difference(DateTime.parse('${MyTime.set_Day} ${timeList[index][0]}${timeList[index][1]}:00:00')).inSeconds > 0) {
+      return true;
+    }
+    return false;
   }
 
   ReservationData clearListView(ReservationData reservationData){
@@ -187,26 +199,39 @@ class _ReservePageState extends State<ReservePage> {
 
     List<DateTime>? tempStartTime = tempMachine['startDatetime'];
     List<DateTime>? tempEndTime = tempMachine['endDatetime'];
-    List<int> disableStartTimeList = List<int>.empty(growable: true);
-    List<int> disableEndTimeList = List<int>.empty(growable: true);
-
-
-    ////////////////////////////////
-    ///////알고리즘 변경 필요///////
-    ////////////////////////////////
-
 
     for(int i = 0; i < tempStartTime!.length; i++){
       String tempStart = DateFormat('yyyy-MM-dd HH:mm:00').format(tempStartTime[i]);
       String tempEnd = DateFormat('yyyy-MM-dd HH:mm:00').format(tempEndTime![i]);
       for(int j = 0; j < timeList.length; j++){
-        if(tempStart[8] + tempStart[9] == MyTime.set_Day[8] + MyTime.set_Day[9]
+        if(tempStart[8] + tempStart[9] == DateFormat('dd').format(DateTime.now())
             && tempStart[11] + tempStart[12] == timeList[j][0] + timeList[j][1]){
-          disableStartTimeList.add(j);
+          disableStartTimeList[0].add(j);
         }
-        if(tempEnd[8] + tempEnd[9] == MyTime.set_Day[8] + MyTime.set_Day[9]
+        if((tempEnd[8] + tempEnd[9] == DateFormat('dd').format(DateTime.now())
+            || tempEnd[8] + tempEnd[9] == DateFormat('dd').format(DateTime.now().add(const Duration(days: 1))))
             && tempEnd[11] + tempEnd[12] == timeList[j][0] + timeList[j][1]){
-          disableEndTimeList.add(j);
+          disableEndTimeList[0].add(j);
+        }
+
+        if(tempStart[8] + tempStart[9] == DateFormat('dd').format(DateTime.now().add(const Duration(days: 1)))
+            && tempStart[11] + tempStart[12] == timeList[j][0] + timeList[j][1]){
+          disableStartTimeList[1].add(j);
+        }
+        if((tempEnd[8] + tempEnd[9] == DateFormat('dd').format(DateTime.now().add(const Duration(days: 1)))
+            || tempEnd[8] + tempEnd[9] == DateFormat('dd').format(DateTime.now().add(const Duration(days: 2))))
+            && tempEnd[11] + tempEnd[12] == timeList[j][0] + timeList[j][1]){
+          disableEndTimeList[1].add(j);
+        }
+
+        if(tempStart[8] + tempStart[9] == DateFormat('dd').format(DateTime.now().add(const Duration(days: 2)))
+            && tempStart[11] + tempStart[12] == timeList[j][0] + timeList[j][1]){
+          disableStartTimeList[2].add(j);
+        }
+        if((tempEnd[8] + tempEnd[9] == DateFormat('dd').format(DateTime.now().add(const Duration(days: 2)))
+            || tempEnd[8] + tempEnd[9] == DateFormat('dd').format(DateTime.now().add(const Duration(days: 3))))
+            && tempEnd[11] + tempEnd[12] == timeList[j][0] + timeList[j][1]){
+          disableEndTimeList[2].add(j);
         }
       }
     }
@@ -238,16 +263,53 @@ class _ReservePageState extends State<ReservePage> {
       }
     }
 
-    if (disableStartTimeList.isNotEmpty) {
-      for(int i = 0; i < disableStartTimeList.length; i++){
-        for(int j = disableStartTimeList[i]; j <= disableEndTimeList[i]; j++){
-          if (dDay_0 == true) {
+    if (disableStartTimeList[0].isNotEmpty) {
+      for(int i = 0; i < disableStartTimeList[0].length; i++){
+        if (disableStartTimeList[0][i] > disableEndTimeList[0][i]) {
+          for(int j = disableStartTimeList[0][i]; j < timeList.length; j++){
             isEnableTile[0][j] = false;
             listViewState[0][j] = 0;
-          } else if (dDay_1 == true) {
+          }
+          if (disableEndTimeList[0][i] != 0) {
+            isEnableTile[1][0] = false;
+            listViewState[1][0] = 0;
+          }
+        } else {
+          for(int j = disableStartTimeList[0][i]; j < disableEndTimeList[0][i]; j++){
+            isEnableTile[0][j] = false;
+            listViewState[0][j] = 0;
+          }
+        }
+      }
+    }
+    if (disableStartTimeList[1].isNotEmpty) {
+      for(int i = 0; i < disableStartTimeList[1].length; i++){
+        if (disableStartTimeList[1][i] > disableEndTimeList[1][i]) {
+          for(int j = disableStartTimeList[1][i]; j < timeList.length; j++){
             isEnableTile[1][j] = false;
             listViewState[1][j] = 0;
-          } else if (dDay_2 == true) {
+          }
+          if (disableEndTimeList[1][i] != 0) {
+            isEnableTile[2][0] = false;
+            listViewState[2][0] = 0;
+          }
+        } else {
+          for(int j = disableStartTimeList[1][i]; j < disableEndTimeList[1][i]; j++){
+            isEnableTile[1][j] = false;
+            listViewState[1][j] = 0;
+          }
+        }
+      }
+    }
+    if (disableStartTimeList[2].isNotEmpty) {
+      for(int i = 0; i < disableStartTimeList[2].length; i++){
+        if (disableStartTimeList[2][i] > disableEndTimeList[2][i]) {
+          for(int j = disableStartTimeList[2][i]; j < timeList.length; j++){
+            isEnableTile[2][j] = false;
+            listViewState[2][j] = 0;
+          }
+        } else {
+          for(int j = disableStartTimeList[2][i]; j < disableEndTimeList[2][i]; j++){
             isEnableTile[2][j] = false;
             listViewState[2][j] = 0;
           }
@@ -255,14 +317,16 @@ class _ReservePageState extends State<ReservePage> {
       }
     }
 
-    disableStartTimeList.clear();
-    disableEndTimeList.clear();
+    disableStartTimeList[0].clear();
+    disableEndTimeList[0].clear();
+    disableStartTimeList[1].clear();
+    disableEndTimeList[1].clear();
+    disableStartTimeList[2].clear();
+    disableEndTimeList[2].clear();
 
     MyTime.isStartTimeSelected = false;
     MyTime.isEndTimeSelected = false;
     MyTime.duration = 0;
-
-    isDurationSelected = [false, false];
 
     return reservationData;
   }
@@ -404,21 +468,27 @@ class _ReservePageState extends State<ReservePage> {
                                               children: [
                                                 Padding(
                                                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                                                  child: Text('Day\n(${MyTime.getToday(daySelect: 0)})',
+                                                  child: Text(
+                                                    '${DateTime.parse(MyTime.getToday(daySelect: 0)).month}월 '
+                                                        '${DateTime.parse(MyTime.getToday(daySelect: 0)).day}일',
                                                     //style: TextStyle(fontSize: 18),
                                                     overflow: TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                                 Padding(
                                                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                                                  child: Text('Day +1\n(${MyTime.getToday(daySelect: 1)})',
+                                                  child: Text(
+                                                    '${DateTime.parse(MyTime.getToday(daySelect: 1)).month}월 '
+                                                        '${DateTime.parse(MyTime.getToday(daySelect: 1)).day}일',
                                                     //style: TextStyle(fontSize: 18),
                                                     overflow: TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                                 Padding(
                                                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                                                  child: Text('Day +2\n(${MyTime.getToday(daySelect: 2)})',
+                                                  child: Text(
+                                                    '${DateTime.parse(MyTime.getToday(daySelect: 2)).month}월 '
+                                                        '${DateTime.parse(MyTime.getToday(daySelect: 2)).day}일',
                                                     //style: TextStyle(fontSize: 18),
                                                     overflow: TextOverflow.ellipsis,
                                                   ),
@@ -434,58 +504,31 @@ class _ReservePageState extends State<ReservePage> {
                                       child: Visibility(
                                         visible: (dDay_0 == true || dDay_1 == true ||dDay_2 == true) ?
                                         true : false,
-                                        child: ListView.builder(
-                                          itemCount: timeList.length,
-                                          itemBuilder: (BuildContext context, int index) {
-                                            return _buildItem(timeList[index], index);
-                                          },
+                                        child: Center(
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount: timeList.length,
+                                            itemBuilder: (BuildContext context, int index) {
+                                              return _buildItem(timeList[index], index);
+                                            },
+                                          ),
                                         ),
                                       ),
                                     ),
 
                                     Flexible(
-                                      flex: 1,
+                                      flex: 2,
                                       fit: FlexFit.loose,
                                       child: Visibility(
                                         visible: (MyTime.isStartTimeSelected == true) ?
                                         true : false,
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          child: ToggleButtons(
-                                            isSelected: isDurationSelected,
-                                            direction: Axis.vertical,
-                                            onPressed: (value){
-                                              toggleDurationSelect(value);
-                                              setState(() {
-                                                MyTime.duration = (duration1H == true) ? 1 : 2;
-
-                                                String tempHour = NumberFormat('00').format(int.parse(MyTime.startHour) + MyTime.duration);
-                                                DateTime temp = DateTime.parse('${MyTime.set_Day} $tempHour:00:00');
-
-                                                MyTime.set_Day2 = DateFormat('yyyy-MM-dd').format(temp);
-                                                MyTime.endHour = DateFormat('HH').format(temp);
-                                                MyTime.isEndTimeSelected = true;
-                                                count = 2;
-                                              });
+                                        child: Center(
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount: durationList.length,
+                                            itemBuilder: (BuildContext context, int index) {
+                                              return _buildDurationItem(durationList[index], index);
                                             },
-                                            selectedColor: Colors.black,
-                                            fillColor: Colors.greenAccent,
-                                            children: const [
-                                              Padding(
-                                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                                child: Text('1시간',
-                                                  //style: TextStyle(fontSize: 18),
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                                child: Text('2시간',
-                                                  //style: TextStyle(fontSize: 18),
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              )
-                                            ],
                                           )
                                         )
                                       )
@@ -507,8 +550,9 @@ class _ReservePageState extends State<ReservePage> {
                                             true : false,
                                             child: Text(
                                               "시작 시간 - "
-                                                  "${DateFormat('yyyy-MM-dd HH:00:00')
-                                                  .format(DateTime.parse('${MyTime.set_Day} ${MyTime.startHour}:00:00'))}",
+                                                  "${DateTime.parse('${MyTime.set_Day} ${MyTime.startHour}:00:00').month}월 "
+                                                  "${DateTime.parse('${MyTime.set_Day} ${MyTime.startHour}:00:00').day}일 "
+                                                  "${DateTime.parse('${MyTime.set_Day} ${MyTime.startHour}:00:00').hour}시",
                                               textAlign: TextAlign.center,
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
@@ -525,8 +569,9 @@ class _ReservePageState extends State<ReservePage> {
                                               true : false,
                                               child: Text(
                                                 "종료 시간 - "
-                                                    "${DateFormat('yyyy-MM-dd HH:00:00')
-                                                    .format(DateTime.parse('${MyTime.set_Day2} ${MyTime.endHour}:00:00'))}",
+                                                    "${DateTime.parse('${MyTime.set_Day2} ${MyTime.endHour}:00:00').month}월 "
+                                                    "${DateTime.parse('${MyTime.set_Day2} ${MyTime.endHour}:00:00').day}일 "
+                                                    "${DateTime.parse('${MyTime.set_Day2} ${MyTime.endHour}:00:00').hour}시",
                                                 textAlign: TextAlign.center,
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
@@ -726,49 +771,126 @@ class _ReservePageState extends State<ReservePage> {
   Widget _buildItem(String timeListElement, int index) {
     return Card(
       elevation: 1,
+      child: Visibility(
+        visible: (isPastTime(index) == true) ?
+        false : true,
+        child: ListTile(
+          title: Text(
+            timeListElement,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          tileColor: setListViewColor(index),
+          onTap: ((dDay_0 == true) ?
+          isEnableTile[0][index] : (dDay_1 == true) ?
+          isEnableTile[1][index] : isEnableTile[2][index]) ? (){
+            int flag = (dDay_0 == true) ? 0 : (dDay_1 == true) ? 1 : 2;
+            setState(() {
+              if(listViewState[flag][index] == 2){
+                if(count == 0) {
+                  selectedStartIndex = index;
+                  listViewState[flag][index] = 1;
+                  isEnableTile[flag][index] = false;
+                  MyTime.isStartTimeSelected = true;
+                  MyTime.startHour = timeList[selectedStartIndex!][0] + timeList[selectedStartIndex!][1];
+                  count = 1;
+
+                  durationState = [2, 2];
+                  isEnableDuration = [true, true];
+
+                  List<DateTime> tempReservationList = reservationData.reservations['startDatetime'];
+                  for(int i = 0; i < tempReservationList.length; i++){
+                    if (DateTime.parse('${MyTime.set_Day} ${NumberFormat('00').format(int.parse(MyTime.startHour) + 1)}:00:00')
+                        == tempReservationList[i]) {
+                      durationState[1] = 0;
+                      isEnableDuration[1] = false;
+                    }
+                  }
+                } else {
+                  listViewState[flag][selectedStartIndex!] = 2;
+                  isEnableTile[flag][selectedStartIndex!] = true;
+
+                  selectedStartIndex = index;
+                  listViewState[flag][index] = 1;
+                  isEnableTile[flag][index] = false;
+                  MyTime.startHour = timeList[selectedStartIndex!][0] + timeList[selectedStartIndex!][1];
+                  count = 1;
+
+                  durationState = [2, 2];
+                  isEnableDuration = [true, true];
+
+                  List<DateTime> tempReservationList = reservationData.reservations['startDatetime'];
+                  for(int i = 0; i < tempReservationList.length; i++){
+                    if (DateTime.parse('${MyTime.set_Day} ${NumberFormat('00').format(int.parse(MyTime.startHour) + 1)}:00:00')
+                        == tempReservationList[i]) {
+                      durationState[1] = 0;
+                      isEnableDuration[1] = false;
+                    }
+                  }
+                }
+              } else if(listViewState[flag][index] == 1) {
+                listViewState[flag][index] = 1;
+              }
+            });
+          } : null,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDurationItem(String durationListElement, int index) {
+    return Card(
+      elevation: 1,
       child: ListTile(
         title: Text(
-          timeListElement,
+          durationListElement,
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontWeight: FontWeight.w600,
           ),
         ),
-        tileColor: setListViewColor(index),
-        onTap: ((dDay_0 == true) ?
-        isEnableTile[0][index] : (dDay_1 == true) ?
-        isEnableTile[1][index] : isEnableTile[2][index]) ? (){
-          int flag = (dDay_0 == true) ? 0 : (dDay_1 == true) ? 1 : 2;
+        tileColor: setDurationColor(index),
+        onTap: (isEnableDuration[index]) ? (){
           setState(() {
-            if(listViewState[flag][index] == 2){
-              if(count == 0) {
-                selectedStartIndex = index;
-                listViewState[flag][index] = 1;
-                isEnableTile[flag][index] = false;
-                MyTime.isStartTimeSelected = true;
-                MyTime.startHour = timeList[selectedStartIndex!][0] + timeList[selectedStartIndex!][1];
-                count = 1;
-              } else if (count == 1) {
-                listViewState[flag][selectedStartIndex!] = 2;
-                isEnableTile[flag][selectedStartIndex!] = true;
+            if(durationState[index] == 2){
+              if (durationCount == 0) {
+                selectedDurationIndex = index;
+                durationState[index] = 1;
+                isEnableDuration[index] = false;
 
-                selectedStartIndex = index;
-                listViewState[flag][index] = 1;
-                isEnableTile[flag][index] = false;
-                MyTime.startHour = timeList[selectedStartIndex!][0] + timeList[selectedStartIndex!][1];
+                durationCount = 1;
+
+                MyTime.duration = (durationListElement == '1시간') ? 1 : 2;
+
+                String tempHour = NumberFormat('00').format(int.parse(MyTime.startHour) + MyTime.duration);
+                DateTime temp = DateTime.parse('${MyTime.set_Day} $tempHour:00:00');
+
+                MyTime.set_Day2 = DateFormat('yyyy-MM-dd').format(temp);
+                MyTime.endHour = DateFormat('HH').format(temp);
+                MyTime.isEndTimeSelected = true;
+                count = 2;
+              } else if (durationCount == 1) {
+                durationState[selectedDurationIndex!] = 2;
+                isEnableDuration[selectedDurationIndex!] = true;
+
+                selectedDurationIndex = index;
+                durationState[index] = 1;
+                isEnableDuration[index] = false;
+
+                MyTime.duration = (durationListElement == '1시간') ? 1 : 2;
+
+                String tempHour = NumberFormat('00').format(int.parse(MyTime.startHour) + MyTime.duration);
+                DateTime temp = DateTime.parse('${MyTime.set_Day} $tempHour:00:00');
+
+                MyTime.set_Day2 = DateFormat('yyyy-MM-dd').format(temp);
+                MyTime.endHour = DateFormat('HH').format(temp);
+                MyTime.isEndTimeSelected = true;
+                count = 2;
               }
-                // else {
-                //   listViewState[flag][index] = 1;
-                //   selectedEndIndex = index;
-                //   isEnableTile[flag][index] = false;
-                //   MyTime.isEndTimeSelected = true;
-                //   MyTime.endHour = endTime[0] + endTime[1];
-                //   count++;
-                //
-                //   for(int i = 0; i < timeList.length; i++) { isEnableTile[flag][i] = false; }
-                // }
-            } else if(listViewState[flag][index] == 1) {
-              listViewState[flag][index] = 1;
+            } else if(durationState[index] == 1) {
+              durationState[index] = 1;
             }
           });
         } : null,

@@ -11,6 +11,10 @@ import 'user_info.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 
+class WeatherData {
+  static List<Map<String, dynamic>> weathers = [];
+}
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -21,7 +25,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final AsyncMemoizer _memoizer = AsyncMemoizer();
 
-  Future _getDataSetting() => _memoizer.runOnce(() => getMachineData());
+  Future _getDataSetting1() => _memoizer.runOnce(() => getMachineData());
+  Future _getDataSetting2() => _memoizer.runOnce(() => getWeatherData());
 
   Future<String> getMachineData() async {
     Map data = {'userId': userInfo.getUserId()};
@@ -50,6 +55,22 @@ class _HomePageState extends State<HomePage> {
 
       return "Success";
     }
+  }
+
+  Future<String> getWeatherData() async {
+    http.Response res = await http.get(Uri.parse(
+        'http://localhost:8080/api/weather'
+    ));
+
+    //여기서는 응답이 객체로 변환된 res 변수를 사용할 수 있다.
+    //여기서 res.body를 jsonDecode 함수로 객체로 만들어서 데이터를 처리할 수 있다.
+    String jsonData = res.body;
+
+    for (int i = 0; i < json.decode(jsonData).length; i++) {
+      WeatherData.weathers.add(json.decode(jsonData)[i]);
+    }
+
+    return 'Success';
   }
 
   void _sendEmail() async {
@@ -181,108 +202,151 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
-              Flexible(
-                flex: 2,
-                fit: FlexFit.tight,
-                child: Container(
-                  margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
-                  padding: const EdgeInsets.all(10.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0x0a0a0aff),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                        DateFormat('yyyy-MM-dd').format(DateTime.now()),
-                        style: const TextStyle(fontSize: 17)
-                      ),
-                      Container(
-                        margin: const EdgeInsets.only(top: 15.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Flexible(
-                                fit: FlexFit.tight,
-                                flex: 1,
-                                child: Column(
-                                  children: const [
-                                    Icon(Icons.sunny),
-                                    Text("일", textAlign: TextAlign.center)
-                                  ],
-                                )
+              FutureBuilder(
+                future: _getDataSetting2(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData) {
+                    return Flexible(
+                      flex: 2,
+                      fit: FlexFit.tight,
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
+                        padding: const EdgeInsets.all(10.0),
+                        decoration: BoxDecoration(
+                          color: const Color(0x0a0a0aff),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          children: <Widget>[
+                            Text(
+                                DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                                style: const TextStyle(fontSize: 17)
                             ),
-                            Flexible(
-                                fit: FlexFit.tight,
-                                flex: 1,
-                                child: Column(
-                                  children: const [
-                                    Icon(Icons.sunny),
-                                    Text("월", textAlign: TextAlign.center)
-                                  ],
-                                )
-                            ),
-                            Flexible(
-                                fit: FlexFit.tight,
-                                flex: 1,
-                                child: Column(
-                                  children: const [
-                                    Icon(Icons.cloud),
-                                    Text("화", textAlign: TextAlign.center)
-                                  ],
-                                )
-                            ),
-                            Flexible(
-                                fit: FlexFit.tight,
-                                flex: 1,
-                                child: Column(
-                                  children: const [
-                                    Icon(Icons.cloudy_snowing),
-                                    Text("수", textAlign: TextAlign.center)
-                                  ],
-                                )
-                            ),
-                            Flexible(
-                                fit: FlexFit.tight,
-                                flex: 1,
-                                child: Column(
-                                  children: const [
-                                    Icon(Icons.cloud),
-                                    Text("목", textAlign: TextAlign.center)
-                                  ],
-                                )
-                            ),
-                            Flexible(
-                                fit: FlexFit.tight,
-                                flex: 1,
-                                child: Column(
-                                  children: const [
-                                    Icon(Icons.sunny),
-                                    Text("금", textAlign: TextAlign.center)
-                                  ],
-                                )
-                            ),
-                            Flexible(
-                                fit: FlexFit.tight,
-                                flex: 1,
-                                child: Column(
-                                  children: const [
-                                    Icon(Icons.sunny_snowing),
-                                    Text("토", textAlign: TextAlign.center)
-                                  ],
-                                )
-                            ),
+                            Container(
+                              margin: const EdgeInsets.only(top: 15.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Flexible(
+                                      fit: FlexFit.tight,
+                                      flex: 1,
+                                      child: Column(
+                                        children: const [
+                                          Icon(Icons.sunny),
+                                          Text("일", textAlign: TextAlign.center)
+                                        ],
+                                      )
+                                  ),
+                                  Flexible(
+                                      fit: FlexFit.tight,
+                                      flex: 1,
+                                      child: Column(
+                                        children: const [
+                                          Icon(Icons.sunny),
+                                          Text("월", textAlign: TextAlign.center)
+                                        ],
+                                      )
+                                  ),
+                                  Flexible(
+                                      fit: FlexFit.tight,
+                                      flex: 1,
+                                      child: Column(
+                                        children: const [
+                                          Icon(Icons.cloud),
+                                          Text("화", textAlign: TextAlign.center)
+                                        ],
+                                      )
+                                  ),
+                                  Flexible(
+                                      fit: FlexFit.tight,
+                                      flex: 1,
+                                      child: Column(
+                                        children: const [
+                                          Icon(Icons.cloudy_snowing),
+                                          Text("수", textAlign: TextAlign.center)
+                                        ],
+                                      )
+                                  ),
+                                  Flexible(
+                                      fit: FlexFit.tight,
+                                      flex: 1,
+                                      child: Column(
+                                        children: const [
+                                          Icon(Icons.cloud),
+                                          Text("목", textAlign: TextAlign.center)
+                                        ],
+                                      )
+                                  ),
+                                  Flexible(
+                                      fit: FlexFit.tight,
+                                      flex: 1,
+                                      child: Column(
+                                        children: const [
+                                          Icon(Icons.sunny),
+                                          Text("금", textAlign: TextAlign.center)
+                                        ],
+                                      )
+                                  ),
+                                  Flexible(
+                                      fit: FlexFit.tight,
+                                      flex: 1,
+                                      child: Column(
+                                        children: const [
+                                          Icon(Icons.sunny_snowing),
+                                          Text("토", textAlign: TextAlign.center)
+                                        ],
+                                      )
+                                  ),
+                                ],
+                              ),
+                            )
                           ],
                         ),
-                      )
-                    ],
-                  ),
-                ),
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Flexible(
+                        flex: 2,
+                        fit: FlexFit.tight,
+                        child: Container(
+                            margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
+                            padding: const EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                              color: const Color(0x0a0a0aff),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Error: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
+                              style: TextStyle(fontSize: 15),
+                            )
+                        )
+                    );
+                  } else {
+                    return Flexible(
+                        flex: 2,
+                        fit: FlexFit.tight,
+                        child: Container(
+                            margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
+                            padding: const EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                              color: const Color(0x0a0a0aff),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Center(
+                              child: SpinKitFadingCircle(
+                                color: Colors.black,
+                                size: 80.0,
+                              ),
+                            )
+                        )
+                    );
+                  }
+                }
               ),
 
               FutureBuilder(
-                future: _getDataSetting(),
+                future: _getDataSetting1(),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasData) {
                     return Flexible(

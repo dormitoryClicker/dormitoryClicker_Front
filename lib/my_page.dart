@@ -110,6 +110,8 @@ class _MyPageState extends State<MyPage> {
     }
   }
 
+  bool isSettedAlarm = false;
+
   var userInfo;
 
   @override
@@ -318,10 +320,10 @@ class _MyPageState extends State<MyPage> {
                                                   child: Text(
                                                     userInfo.getCanReservation() ? "" :
                                                     "${userInfo.getStartTime().month}월 ${userInfo.getStartTime().day}일 "
-                                                        "${userInfo.getStartTime().hour}시 ${userInfo.getStartTime().minute}분"
+                                                        "${userInfo.getStartTime().hour}시"
                                                         " - "
                                                         "${userInfo.getEndTime().month}월 ${userInfo.getEndTime().day}일 "
-                                                        "${userInfo.getEndTime().hour}시 ${userInfo.getEndTime().minute}분",
+                                                        "${userInfo.getEndTime().hour}시",
                                                     style: const TextStyle(
                                                       fontWeight: FontWeight.bold,
                                                       fontSize: 20,
@@ -430,15 +432,24 @@ class _MyPageState extends State<MyPage> {
                                   flex: 1,
                                   child: IconButton(
                                       onPressed: (){
-                                        // userInfo.putUserId("");
-                                        // userInfo.putPassword("");
-                                        // userInfo.putUserName("");
-                                        // userInfo.putDormitory("");
-                                        // userInfo.putCanReservation(true);
-                                        // userInfo.putMachineNum("");
-                                        // userInfo.putStartTime("");
-                                        // userInfo.putEndTime("");
-                                        Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                content: const Text("로그아웃 하시겠습니까?"),
+                                                actions: [
+                                                  ElevatedButton(
+                                                      onPressed: () {
+                                                        Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
+                                                      },
+                                                      child: const Text('예')),
+                                                  ElevatedButton(
+                                                      onPressed: () => Navigator.of(context).pop(),
+                                                      child: const Text('아니오')),
+                                                ],
+                                              );
+                                            }
+                                        );
                                       },
                                       icon: const Icon(Icons.logout)
                                   )
@@ -482,7 +493,37 @@ class _MyPageState extends State<MyPage> {
             );
           }
         },
-      )
+      ),
+      floatingActionButton: Visibility(
+          visible: (userInfo.getCanReservation() == true) ?
+          false : true,
+          child: FloatingActionButton(
+              child: (isSettedAlarm == false) ? const Icon(Icons.notifications) : getNotIcon(const Icon(Icons.notifications)),
+              onPressed: (){
+                setState(() {
+                  if (isSettedAlarm == false) { isSettedAlarm = true; }
+                  else { isSettedAlarm = false; }
+                });
+
+                //////////////////////
+                ////알림 적용 필요////
+                //////////////////////
+
+              }
+          )
+      ),
+    );
+  }
+
+  Widget getNotIcon(Widget icon){
+    return Container(
+      foregroundDecoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/ban.png'),
+          fit: BoxFit.fitWidth
+        )
+      ),
+      child: icon,
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
@@ -60,6 +62,17 @@ class _SignInPageState extends State<SignInPage> {
   Widget build(BuildContext context) {
     userInfo = Provider.of<UserInfo>(context, listen: true);
 
+    bool? isWeb;
+    try {
+      if (Platform.isAndroid || Platform.isIOS) {
+        isWeb = false;
+      } else {
+        isWeb = true;
+      }
+    } catch (e) {
+      isWeb = true;
+    }
+
     return WillPopScope(
       onWillPop: () async {
         await _onBackPressed(context);
@@ -91,6 +104,9 @@ class _SignInPageState extends State<SignInPage> {
                           "로그인",
                           style: TextStyle(color: Colors.lightBlue, fontSize: 20.0),
                         )
+                    ),
+                    Text(
+                        (isWeb == true) ? "Web" : (Platform.isAndroid == true) ? "Android" : (Platform.isIOS == true) ? "IOS" : "Nothing"
                     )
                   ]
               ),
