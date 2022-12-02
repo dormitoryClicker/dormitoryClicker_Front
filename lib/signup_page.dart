@@ -13,7 +13,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
 
   Future<String> sendSignUpData(String userId, String password, String userName, String dormitory) async {
-    http.Response res = await http.post(Uri.parse('http://localhost:8080/signup'),
+    http.Response res = await http.post(Uri.parse('http://dormitoryclicker.shop:8080/signup'),
         body: {
           'userId': userId,
           'password': password,
@@ -41,34 +41,29 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(
+          "회원가입",
+          style: TextStyle(
+            color: Colors.blue
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
+        centerTitle: true,
+        elevation: 0.0,
+        backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(
+          color: Colors.blue
+        ),
+      ),
       body: Column(
         children: [
-          Row(
-            children: [
-              Container(
-                alignment: Alignment.topLeft,
-                padding: const EdgeInsets.only(top: 30.0, left: 15.0),
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.lightBlue,
-                    size: 25.0,
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              Container(
-                  alignment: Alignment.topLeft,
-                  padding: const EdgeInsets.only(top: 30.0),
-                  child: const Text(
-                    "회원가입",
-                    style: TextStyle(color: Colors.lightBlue, fontSize: 20.0),
-                  )
-              )
-            ]
-          ),
           Flexible(
             fit: FlexFit.tight,
             flex: 1,
@@ -167,15 +162,23 @@ class _SignUpPageState extends State<SignUpPage> {
                     const SizedBox(height: 12.0),
                     TextFormField(
                       keyboardType: TextInputType.number,
+                      maxLength: 8,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp('[0-9]'))
+                      ],
                       autofocus: false,
                       decoration: const InputDecoration(
                         icon: Icon(Icons.account_circle),
                         labelText: '학번',
                         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                        counterText: ''
                       ),
                       validator: (value) {
                         if (value != null && value.isEmpty) {
                           return '필수 항목입니다';
+                        }
+                        if (value!.length != 8) {
+                          return '입력한 학번이 8자리가 아닙니다';
                         }
                         _userId = value;
                         return null;
@@ -222,12 +225,33 @@ class _SignUpPageState extends State<SignUpPage> {
                         onPressed: () {
                           if(_formKey.currentState!.validate()) {
                             if (_password == _passCheck){
+                              if (_dormFirst == null || _dormSecond == null) {
+                                showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: const Text("기숙사를 선택해주세요."),
+                                        actions: [
+                                          Center(
+                                              child: ElevatedButton(
+                                                  onPressed: (){ Navigator.pop(context); },
+                                                  child: const Text("확인")
+                                              )
+                                          )
+                                        ],
+                                      );
+                                    }
+                                );
+                                return;
+                              }
                               _dormitory = '${_dormFirst![0]}${_dormFirst![1]}${_dormSecond![0]}';
                               sendSignUpData(_userId!, _password!, _userName!, _dormitory!).then((value) {
                                 if(value == 'success'){
                                   Navigator.pop(context);
                                   showDialog(
                                       context: context,
+                                      barrierDismissible: false,
                                       builder: (BuildContext context) {
                                         return AlertDialog(
                                           content: const Text("회원가입에 성공하였습니다."),
@@ -245,6 +269,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 } else if (value == 'Id exists') {
                                   showDialog(
                                       context: context,
+                                      barrierDismissible: false,
                                       builder: (BuildContext context) {
                                         return AlertDialog(
                                           content: const Text("이미 존재하는 아이디입니다."),
@@ -262,6 +287,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 } else if (value == 'Bad request') {
                                   showDialog(
                                       context: context,
+                                      barrierDismissible: false,
                                       builder: (BuildContext context) {
                                         return AlertDialog(
                                           content: const Text("입력이 정상적으로 이루어지지 않았습니다."),
@@ -279,6 +305,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 } else {
                                   showDialog(
                                       context: context,
+                                      barrierDismissible: false,
                                       builder: (BuildContext context) {
                                         return AlertDialog(
                                           content: const Text("서버에 문제가 발생했습니다."),
@@ -298,6 +325,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             } else {
                               showDialog(
                                   context: context,
+                                  barrierDismissible: false,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
                                       content: const Text("비밀번호 확인이 일치하지 않습니다."),

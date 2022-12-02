@@ -9,7 +9,6 @@ import 'my_page.dart';
 import 'reserve_page.dart';
 import 'signin_page.dart';
 import 'signup_page.dart';
-import 'setting_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,8 +51,7 @@ class _MyAppState extends State<MyApp> {
           '/mypage': (context) => MyPage(),
           '/reservation': (context) => ReservePage(),
           '/signin': (context) => SignInPage(),
-          '/signup': (context) => SignUpPage(),
-          '/setting' : (context) => SettingPage()
+          '/signup': (context) => SignUpPage()
         },
       ),
     );

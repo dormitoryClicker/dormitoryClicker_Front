@@ -17,7 +17,7 @@ class _SignInPageState extends State<SignInPage> {
   final _formKey = GlobalKey<FormState>();
 
   Future<String> sendSignInData(String userId, String password) async {
-    http.Response res = await http.post(Uri.parse('http://localhost:8080/signin'),
+    http.Response res = await http.post(Uri.parse('http://dormitoryclicker.shop:8080/signin'),
         body: {
           'userId': userId,
           'password': password
@@ -35,28 +35,6 @@ class _SignInPageState extends State<SignInPage> {
 
   String? _tempId;
   String? _tempPw;
-  Future _onPowerKey() async {
-    return await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('어플을 종료합니다'),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-                },
-                child: Text('확인')),
-            TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text('취소')),
-          ],
-        );
-      }
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,42 +52,29 @@ class _SignInPageState extends State<SignInPage> {
     }
 
     return WillPopScope(
-      onWillPop: () async {
+      onWillPop: (isWeb == true) ? null : () async {
         await _onBackPressed(context);
         return false;
       },
       child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: const Text(
+              "로그인",
+              style: TextStyle(
+                  color: Colors.blue
+              ),
+            ),
+            automaticallyImplyLeading: false,
+            centerTitle: true,
+            elevation: 0.0,
+            backgroundColor: Colors.white,
+            iconTheme: const IconThemeData(
+                color: Colors.blue
+            ),
+          ),
           body: Column(
             children: [
-              Row(
-                  children: [
-                    Container(
-                      alignment: Alignment.topLeft,
-                      padding: const EdgeInsets.only(top: 30.0, left: 15.0),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back_ios,
-                          color: Colors.lightBlue,
-                          size: 25.0,
-                        ),
-                        onPressed: () {
-                          _onPowerKey();
-                        },
-                      ),
-                    ),
-                    Container(
-                        alignment: Alignment.topLeft,
-                        padding: const EdgeInsets.only(top: 30.0),
-                        child: const Text(
-                          "로그인",
-                          style: TextStyle(color: Colors.lightBlue, fontSize: 20.0),
-                        )
-                    ),
-                    Text(
-                        (isWeb == true) ? "Web" : (Platform.isAndroid == true) ? "Android" : (Platform.isIOS == true) ? "IOS" : "Nothing"
-                    )
-                  ]
-              ),
               Flexible(
                   fit: FlexFit.tight,
                   flex: 1,
@@ -164,6 +129,7 @@ class _SignInPageState extends State<SignInPage> {
                                       if(value == 'failed'){
                                         showDialog(
                                             context: context,
+                                            barrierDismissible: false,
                                             builder: (BuildContext context) {
                                               return AlertDialog(
                                                 content: const Text("아이디 혹은 비밀번호가 유효하지 않습니다."),
@@ -221,19 +187,25 @@ class _SignInPageState extends State<SignInPage> {
 Future<void> _onBackPressed(BuildContext context) async {
   await showDialog(
     context: context,
+    barrierDismissible: false,
     builder: (context) => AlertDialog(
       title: const Text('어플을 종료합니다'),
       actions: [
-        TextButton(
-            onPressed: () {
-              SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-            },
-            child: Text('확인')),
-        TextButton(
+        ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text('취소')),
+            style: const ButtonStyle(
+                backgroundColor: MaterialStatePropertyAll(Colors.black26)
+            ),
+            child: Text('취소')
+        ),
+        ElevatedButton(
+            onPressed: () {
+              SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+            },
+            child: Text('확인')
+        ),
       ],
     ),
   );
