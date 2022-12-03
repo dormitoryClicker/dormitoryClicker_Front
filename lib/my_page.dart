@@ -321,6 +321,11 @@ class _MyPageState extends State<MyPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     userInfo = Provider.of<UserInfo>(context, listen: true);
 
+    if (userInfo.getCanReservation() == true) {   // 만약 내가 예약상태가 아니라면
+      // isSettedAlarm을 false로 바꿔서 새롭게 알람을 받을수 있도록 초기화 해준다.
+      _storeInfo(userInfo.getUserId(), false);
+    }
+
     _loadInfo(userInfo.getUserId());
 
     bool? isWeb;
