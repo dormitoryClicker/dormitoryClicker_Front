@@ -12,6 +12,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_icons/weather_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WeatherData {
   static List<Map<String, dynamic>> weathers = [];
@@ -109,6 +110,11 @@ class _HomePageState extends State<HomePage> {
     }
     return const BoxedIcon(WeatherIcons.rain);
   }
+
+  void _storeInfo(String userId, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('${userId}_settedAlarm', value);
+  }   // 로컬에 데이터 저장용도
 
   @override
   Widget build(BuildContext context) {
@@ -341,6 +347,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                       );
                     } else {
+                      if (userInfo.getCanReservation() == true) {   // 만약 내가 예약상태가 아니라면
+                        // isSettedAlarm을 false로 바꿔서 새롭게 알람을 받을수 있도록 초기화 해준다.
+                        _storeInfo(userInfo.getUserId(), false);
+                      }
+
                       return Flexible(
                         flex: 8,
                         fit: FlexFit.tight,
