@@ -116,6 +116,7 @@ class _HomePageState extends State<HomePage> {
     prefs.setBool('${userId}_settedAlarm', value);
   }   // 로컬에 데이터 저장용도
 
+
   @override
   Widget build(BuildContext context) {
     userInfo = Provider.of<UserInfo>(context, listen: true);
@@ -158,169 +159,169 @@ class _HomePageState extends State<HomePage> {
     }
 
     return WillPopScope(
-        onWillPop: (isWeb == true) ? null : () async {
-          await _onBackPressed(context);
-          return false;
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text("홈"),
-            centerTitle: true,
-            elevation: 0.0,
-          ),
-          drawer: Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                UserAccountsDrawerHeader(
-                  accountName: Text(
-                    userInfo.getUserId(),
-                    style: const TextStyle(
-                        fontSize: 30
-                    ),
+      onWillPop: (isWeb == true) ? null : () async {
+        await _onBackPressed(context);
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("홈"),
+          centerTitle: true,
+          elevation: 0.0,
+        ),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              UserAccountsDrawerHeader(
+                accountName: Text(
+                  userInfo.getUserId(),
+                  style: const TextStyle(
+                    fontSize: 30
                   ),
-                  accountEmail: Text(
-                    userInfo.getDormitory(),
-                    style: const TextStyle(
-                        fontSize: 18
-                    ),
+                ),
+                accountEmail: Text(
+                  userInfo.getDormitory(),
+                  style: const TextStyle(
+                    fontSize: 18
                   ),
-                  decoration: BoxDecoration(color: Colors.blue[300]),
                 ),
-                ListTile(
-                  title: const Text("홈"),
-                  onTap: () {
-                    Navigator.pushReplacementNamed(context, '/');
-                  },
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                ),
-                ListTile(
-                  title: const Text("마이페이지"),
-                  onTap: () {
-                    Navigator.pushNamed(context, '/mypage');
-                  },
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                ),
-                ListTile(
-                  title: const Text("문의/건의"),
-                  onTap: () async {
-                    final url = Uri(
-                      scheme: 'mailto',
-                      path: 'gmgpgk1713@gmail.com',
-                      query: 'subject=기숙사 클리커 문의&body=[문의내용]\n',
+                decoration: BoxDecoration(color: Colors.blue[300]),
+              ),
+              ListTile(
+                title: const Text("홈"),
+                onTap: () {
+                  Navigator.pushReplacementNamed(context, '/');
+                },
+                trailing: const Icon(Icons.arrow_forward_ios),
+              ),
+              ListTile(
+                title: const Text("마이페이지"),
+                onTap: () {
+                  Navigator.pushNamed(context, '/mypage');
+                },
+                trailing: const Icon(Icons.arrow_forward_ios),
+              ),
+              ListTile(
+                title: const Text("문의/건의"),
+                onTap: () async {
+                  final url = Uri(
+                    scheme: 'mailto',
+                    path: 'gmgpgk1713@gmail.com',
+                    query: 'subject=기숙사 클리커 문의&body=[문의내용]\n',
+                  );
+                  if (await canLaunchUrl(url)) {
+                    launchUrl(url);
+                  }
+                  else {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            content: const Text('메일 앱에 접근할 수 없습니다.\n'
+                                '아래의 연락처로 연락주세요.\n\n'
+                                '[Email: dormiWork@kumoh.ac.kr]'),
+                            actions: [
+                              Center(
+                                  child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("확인")
+                                  )
+                              )
+                            ],
+                          );
+                        }
                     );
-                    if (await canLaunchUrl(url)) {
-                      launchUrl(url);
-                    }
-                    else {
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              content: const Text('메일 앱에 접근할 수 없습니다.\n'
-                                  '아래의 연락처로 연락주세요.\n\n'
-                                  '[Email: dormiWork@kumoh.ac.kr]'),
-                              actions: [
-                                Center(
-                                    child: ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text("확인")
-                                    )
-                                )
-                              ],
-                            );
-                          }
-                      );
-                    }
-                  },
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                ),
-              ],
-            ),
+                  }
+                },
+                trailing: const Icon(Icons.arrow_forward_ios),
+              ),
+            ],
           ),
-          body: Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                FutureBuilder(
-                    future: _getDataSetting2(),
-                    builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      if (snapshot.hasData) {
-                        return Flexible(
-                          flex: 2,
-                          fit: FlexFit.tight,
-                          child: Container(
+        ),
+        body: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              FutureBuilder(
+                future: _getDataSetting2(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData) {
+                    return Flexible(
+                      flex: 2,
+                      fit: FlexFit.tight,
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
+                        padding: const EdgeInsets.all(10.0),
+                        decoration: BoxDecoration(
+                            color: const Color(0x0a0a0aff),
+                            borderRadius: BorderRadius.circular(20)
+                        ),
+                        child: Scrollbar(
+                          controller: _scrollController,
+                          child: GridView.builder(
+                            controller: _scrollController,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: WeatherData.weathers.length,
+                            shrinkWrap: true,
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 1,
+                              mainAxisExtent: 50,
+                              crossAxisSpacing: 20,
+                              mainAxisSpacing: 20
+                            ),
+                            itemBuilder: (context, index) {
+                              return GridTile(
+                                header: Text(
+                                  '${DateTime.parse(WeatherData.weathers[index]['date']).month}/'
+                                      '${DateTime.parse(WeatherData.weathers[index]['date']).day}',
+                                  textAlign: TextAlign.center,
+                                ),
+                                footer: Text(
+                                    '${DateFormat('HH').format(DateTime.parse(WeatherData.weathers[index]['date']))}:00',
+                                    textAlign: TextAlign.center
+                                ),
+                                child: _getWeatherIcon(index),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Flexible(
+                        flex: 2,
+                        fit: FlexFit.tight,
+                        child: Container(
                             margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
                             padding: const EdgeInsets.all(10.0),
-                            decoration: BoxDecoration(
-                                color: const Color(0x0a0a0aff),
-                                borderRadius: BorderRadius.circular(20)
-                            ),
-                            child: Scrollbar(
-                              controller: _scrollController,
-                              child: GridView.builder(
-                                controller: _scrollController,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: WeatherData.weathers.length,
-                                shrinkWrap: true,
-                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 1,
-                                    mainAxisExtent: 50,
-                                    crossAxisSpacing: 20,
-                                    mainAxisSpacing: 20
-                                ),
-                                itemBuilder: (context, index) {
-                                  return GridTile(
-                                    header: Text(
-                                      '${DateTime.parse(WeatherData.weathers[index]['date']).month}/'
-                                          '${DateTime.parse(WeatherData.weathers[index]['date']).day}',
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    footer: Text(
-                                        '${DateFormat('HH').format(DateTime.parse(WeatherData.weathers[index]['date']))}:00',
-                                        textAlign: TextAlign.center
-                                    ),
-                                    child: _getWeatherIcon(index),
-                                  );
-                                },
+                            child: Text(
+                              'Error: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
+                              style: TextStyle(fontSize: 15),
+                            )
+                        )
+                    );
+                  } else {
+                    return Flexible(
+                        flex: 2,
+                        fit: FlexFit.tight,
+                        child: Container(
+                            margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
+                            padding: const EdgeInsets.all(10.0),
+                            child: const Center(
+                              child: SpinKitFadingCircle(
+                                color: Colors.black,
+                                size: 80.0,
                               ),
-                            ),
-                          ),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Flexible(
-                            flex: 2,
-                            fit: FlexFit.tight,
-                            child: Container(
-                                margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
-                                padding: const EdgeInsets.all(10.0),
-                                child: Text(
-                                  'Error: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
-                                  style: TextStyle(fontSize: 15),
-                                )
                             )
-                        );
-                      } else {
-                        return Flexible(
-                            flex: 2,
-                            fit: FlexFit.tight,
-                            child: Container(
-                                margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
-                                padding: const EdgeInsets.all(10.0),
-                                child: const Center(
-                                  child: SpinKitFadingCircle(
-                                    color: Colors.black,
-                                    size: 80.0,
-                                  ),
-                                )
-                            )
-                        );
-                      }
-                    }
-                ),
+                        )
+                    );
+                  }
+                }
+              ),
 
                 FutureBuilder(
                     future: _getDataSetting1(),
