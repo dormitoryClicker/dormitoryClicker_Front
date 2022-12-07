@@ -116,16 +116,10 @@ class _HomePageState extends State<HomePage> {
     prefs.setBool('${userId}_settedAlarm', value);
   }   // 로컬에 데이터 저장용도
 
-
   @override
   Widget build(BuildContext context) {
     userInfo = Provider.of<UserInfo>(context, listen: true);
     dormData = Provider.of<DormData>(context, listen: true);
-
-    if (userInfo.getCanReservation() == true) {   // 만약 내가 예약상태가 아니라면
-      // isSettedAlarm을 false로 바꿔서 새롭게 알람을 받을수 있도록 초기화 해준다.
-      _storeInfo(userInfo.getUserId(), false);
-    }
 
     String getMachineName(int index) {
       String machineNum = dormData.machines[index]['machineNum'];
@@ -164,289 +158,294 @@ class _HomePageState extends State<HomePage> {
     }
 
     return WillPopScope(
-      onWillPop: (isWeb == true) ? null : () async {
-        await _onBackPressed(context);
-        return false;
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("홈"),
-          centerTitle: true,
-          elevation: 0.0,
-        ),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              UserAccountsDrawerHeader(
-                accountName: Text(
-                  userInfo.getUserId(),
-                  style: const TextStyle(
-                    fontSize: 30
-                  ),
-                ),
-                accountEmail: Text(
-                  userInfo.getDormitory(),
-                  style: const TextStyle(
-                    fontSize: 18
-                  ),
-                ),
-                decoration: BoxDecoration(color: Colors.blue[300]),
-              ),
-              ListTile(
-                title: const Text("홈"),
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, '/');
-                },
-                trailing: const Icon(Icons.arrow_forward_ios),
-              ),
-              ListTile(
-                title: const Text("마이페이지"),
-                onTap: () {
-                  Navigator.pushNamed(context, '/mypage');
-                },
-                trailing: const Icon(Icons.arrow_forward_ios),
-              ),
-              ListTile(
-                title: const Text("문의/건의"),
-                onTap: () async {
-                  final url = Uri(
-                    scheme: 'mailto',
-                    path: 'gmgpgk1713@gmail.com',
-                    query: 'subject=기숙사 클리커 문의&body=[문의내용]\n',
-                  );
-                  if (await canLaunchUrl(url)) {
-                    launchUrl(url);
-                  }
-                  else {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            content: const Text('메일 앱에 접근할 수 없습니다.\n'
-                                '아래의 연락처로 연락주세요.\n\n'
-                                '[Email: dormiWork@kumoh.ac.kr]'),
-                            actions: [
-                              Center(
-                                  child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text("확인")
-                                  )
-                              )
-                            ],
-                          );
-                        }
-                    );
-                  }
-                },
-                trailing: const Icon(Icons.arrow_forward_ios),
-              ),
-            ],
+        onWillPop: (isWeb == true) ? null : () async {
+          await _onBackPressed(context);
+          return false;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text("홈"),
+            centerTitle: true,
+            elevation: 0.0,
           ),
-        ),
-        body: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              FutureBuilder(
-                future: _getDataSetting2(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData) {
-                    return Flexible(
-                      flex: 2,
-                      fit: FlexFit.tight,
-                      child: Container(
-                        margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
-                        padding: const EdgeInsets.all(10.0),
-                        decoration: BoxDecoration(
-                            color: const Color(0x0a0a0aff),
-                            borderRadius: BorderRadius.circular(20)
-                        ),
-                        child: Scrollbar(
-                          controller: _scrollController,
-                          child: GridView.builder(
-                            controller: _scrollController,
-                            scrollDirection: Axis.horizontal,
-                            itemCount: WeatherData.weathers.length,
-                            shrinkWrap: true,
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 1,
-                              mainAxisExtent: 50,
-                              crossAxisSpacing: 20,
-                              mainAxisSpacing: 20
-                            ),
-                            itemBuilder: (context, index) {
-                              return GridTile(
-                                header: Text(
-                                  '${DateTime.parse(WeatherData.weathers[index]['date']).month}/'
-                                      '${DateTime.parse(WeatherData.weathers[index]['date']).day}',
-                                  textAlign: TextAlign.center,
-                                ),
-                                footer: Text(
-                                    '${DateFormat('HH').format(DateTime.parse(WeatherData.weathers[index]['date']))}:00',
-                                    textAlign: TextAlign.center
-                                ),
-                                child: _getWeatherIcon(index),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
+          drawer: Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                UserAccountsDrawerHeader(
+                  accountName: Text(
+                    userInfo.getUserId(),
+                    style: const TextStyle(
+                        fontSize: 30
+                    ),
+                  ),
+                  accountEmail: Text(
+                    userInfo.getDormitory(),
+                    style: const TextStyle(
+                        fontSize: 18
+                    ),
+                  ),
+                  decoration: BoxDecoration(color: Colors.blue[300]),
+                ),
+                ListTile(
+                  title: const Text("홈"),
+                  onTap: () {
+                    Navigator.pushReplacementNamed(context, '/');
+                  },
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                ),
+                ListTile(
+                  title: const Text("마이페이지"),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/mypage');
+                  },
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                ),
+                ListTile(
+                  title: const Text("문의/건의"),
+                  onTap: () async {
+                    final url = Uri(
+                      scheme: 'mailto',
+                      path: 'gmgpgk1713@gmail.com',
+                      query: 'subject=기숙사 클리커 문의&body=[문의내용]\n',
                     );
-                  } else if (snapshot.hasError) {
-                    return Flexible(
-                        flex: 2,
-                        fit: FlexFit.tight,
-                        child: Container(
-                            margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(
-                              'Error: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
-                              style: TextStyle(fontSize: 15),
-                            )
-                        )
-                    );
-                  } else {
-                    return Flexible(
-                        flex: 2,
-                        fit: FlexFit.tight,
-                        child: Container(
-                            margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
-                            padding: const EdgeInsets.all(10.0),
-                            child: const Center(
-                              child: SpinKitFadingCircle(
-                                color: Colors.black,
-                                size: 80.0,
-                              ),
-                            )
-                        )
-                    );
-                  }
-                }
-              ),
-
-              FutureBuilder(
-                future: _getDataSetting1(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData) {
-                    if (snapshot.data == "500: Server Unavailable") {
-                      return const Center(
-                        child: Text(
-                          "500: Server Unavailable",
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontStyle: FontStyle.italic
-                          ),
-                        ),
-                      );
-                    } else if (snapshot.data == "404: User Not Found") {
-                      return const Center(
-                        child: Text(
-                          "404: User Not Found",
-                          style: TextStyle(
-                              fontSize: 30,
-                              fontStyle: FontStyle.italic
-                          ),
-                        ),
-                      );
-                    } else {
-                      return Flexible(
-                        flex: 8,
-                        fit: FlexFit.tight,
-                        child: Container(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Column(
-                            children: <Widget>[
-                              const Flexible(
-                                  flex: 1,
-                                  fit: FlexFit.tight,
-                                  child: Text(
-                                    '기기 선택',
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                    ),
-                                  )
-                              ),
-                              Flexible(
-                                  flex: 9,
-                                  fit: FlexFit.tight,
-                                  child: GridView.builder(
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 4,
-                                      mainAxisSpacing: 3,
-                                      crossAxisSpacing: 3,
-                                      childAspectRatio: 3/5,
-                                    ),
-                                    itemCount: 6,
-                                    itemBuilder: (BuildContext context, int index){
-                                      return Card(
-                                        margin: const EdgeInsets.all(2),
-                                        elevation: 2,
-                                        child: GridTile(
-                                          footer: Container(
-                                            height: 40,
-                                            child: GridTileBar(
-                                                backgroundColor: getMachineColor(index),
-                                                title: Text(getMachineName(index), textAlign: TextAlign.center)
-                                            ),
-                                          ),
-                                          child: IconButton(
-                                            icon: Icon(getMachineIcon(index), size: 50,),
-                                            onPressed: (){
-                                              String machineNum = dormData.machines[index]['machineNum'];
-                                              userInfo.putMachineNum(machineNum);
-                                              Navigator.pushNamed(context, '/reservation');
-                                            },
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  )
-                              ),
-                            ],
-                          ),
-                        ),
+                    if (await canLaunchUrl(url)) {
+                      launchUrl(url);
+                    }
+                    else {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              content: const Text('메일 앱에 접근할 수 없습니다.\n'
+                                  '아래의 연락처로 연락주세요.\n\n'
+                                  '[Email: dormiWork@kumoh.ac.kr]'),
+                              actions: [
+                                Center(
+                                    child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text("확인")
+                                    )
+                                )
+                              ],
+                            );
+                          }
                       );
                     }
-                  } else if (snapshot.hasError) {
-                    return Flexible(
-                      flex: 8,
-                      fit: FlexFit.tight,
-                      child: Container(
-                        margin: const EdgeInsets.all(10.0),
-                        padding: const EdgeInsets.all(15.0),
-                        child: Text(
-                          'Error: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
-                          style: TextStyle(fontSize: 15),
-                        )
-                      )
-                    );
-                  }
-                  else {
-                    return Flexible(
-                        flex: 8,
-                        fit: FlexFit.tight,
-                        child: Container(
-                            margin: const EdgeInsets.all(10.0),
-                            padding: const EdgeInsets.all(15.0),
-                            child: const Center(
-                              child: SpinKitFadingCircle(
-                                color: Colors.black,
-                                size: 80.0,
-                              ),
-                            )
-                        )
-                    );
-                  }
-                }
-              ),
-            ],
+                  },
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                ),
+              ],
+            ),
           ),
-        ),
-      )
+          body: Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                FutureBuilder(
+                    future: _getDataSetting2(),
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      if (snapshot.hasData) {
+                        return Flexible(
+                          flex: 2,
+                          fit: FlexFit.tight,
+                          child: Container(
+                            margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
+                            padding: const EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                                color: const Color(0x0a0a0aff),
+                                borderRadius: BorderRadius.circular(20)
+                            ),
+                            child: Scrollbar(
+                              controller: _scrollController,
+                              child: GridView.builder(
+                                controller: _scrollController,
+                                scrollDirection: Axis.horizontal,
+                                itemCount: WeatherData.weathers.length,
+                                shrinkWrap: true,
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 1,
+                                    mainAxisExtent: 50,
+                                    crossAxisSpacing: 20,
+                                    mainAxisSpacing: 20
+                                ),
+                                itemBuilder: (context, index) {
+                                  return GridTile(
+                                    header: Text(
+                                      '${DateTime.parse(WeatherData.weathers[index]['date']).month}/'
+                                          '${DateTime.parse(WeatherData.weathers[index]['date']).day}',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    footer: Text(
+                                        '${DateFormat('HH').format(DateTime.parse(WeatherData.weathers[index]['date']))}:00',
+                                        textAlign: TextAlign.center
+                                    ),
+                                    child: _getWeatherIcon(index),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Flexible(
+                            flex: 2,
+                            fit: FlexFit.tight,
+                            child: Container(
+                                margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text(
+                                  'Error: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
+                                  style: TextStyle(fontSize: 15),
+                                )
+                            )
+                        );
+                      } else {
+                        return Flexible(
+                            flex: 2,
+                            fit: FlexFit.tight,
+                            child: Container(
+                                margin: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
+                                padding: const EdgeInsets.all(10.0),
+                                child: const Center(
+                                  child: SpinKitFadingCircle(
+                                    color: Colors.black,
+                                    size: 80.0,
+                                  ),
+                                )
+                            )
+                        );
+                      }
+                    }
+                ),
+
+                FutureBuilder(
+                    future: _getDataSetting1(),
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      if (snapshot.hasData) {
+                        if (snapshot.data == "500: Server Unavailable") {
+                          return const Center(
+                            child: Text(
+                              "500: Server Unavailable",
+                              style: TextStyle(
+                                  fontSize: 30,
+                                  fontStyle: FontStyle.italic
+                              ),
+                            ),
+                          );
+                        } else if (snapshot.data == "404: User Not Found") {
+                          return const Center(
+                            child: Text(
+                              "404: User Not Found",
+                              style: TextStyle(
+                                  fontSize: 30,
+                                  fontStyle: FontStyle.italic
+                              ),
+                            ),
+                          );
+                        } else {
+                          if (userInfo.getCanReservation() == true) {   // 만약 내가 예약상태가 아니라면
+                            // isSettedAlarm을 false로 바꿔서 새롭게 알람을 받을수 있도록 초기화 해준다.
+                            _storeInfo(userInfo.getUserId(), false);
+                          }
+
+                          return Flexible(
+                            flex: 8,
+                            fit: FlexFit.tight,
+                            child: Container(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Column(
+                                children: <Widget>[
+                                  const Flexible(
+                                      flex: 1,
+                                      fit: FlexFit.tight,
+                                      child: Text(
+                                        '기기 선택',
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                        ),
+                                      )
+                                  ),
+                                  Flexible(
+                                      flex: 9,
+                                      fit: FlexFit.tight,
+                                      child: GridView.builder(
+                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 4,
+                                          mainAxisSpacing: 3,
+                                          crossAxisSpacing: 3,
+                                          childAspectRatio: 3/5,
+                                        ),
+                                        itemCount: 6,
+                                        itemBuilder: (BuildContext context, int index){
+                                          return Card(
+                                            margin: const EdgeInsets.all(2),
+                                            elevation: 2,
+                                            child: GridTile(
+                                              footer: Container(
+                                                height: 40,
+                                                child: GridTileBar(
+                                                    backgroundColor: getMachineColor(index),
+                                                    title: Text(getMachineName(index), textAlign: TextAlign.center)
+                                                ),
+                                              ),
+                                              child: IconButton(
+                                                icon: Icon(getMachineIcon(index), size: 50,),
+                                                onPressed: (){
+                                                  String machineNum = dormData.machines[index]['machineNum'];
+                                                  userInfo.putMachineNum(machineNum);
+                                                  Navigator.pushNamed(context, '/reservation');
+                                                },
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      )
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                      } else if (snapshot.hasError) {
+                        return Flexible(
+                            flex: 8,
+                            fit: FlexFit.tight,
+                            child: Container(
+                                margin: const EdgeInsets.all(10.0),
+                                padding: const EdgeInsets.all(15.0),
+                                child: Text(
+                                  'Error: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
+                                  style: TextStyle(fontSize: 15),
+                                )
+                            )
+                        );
+                      }
+                      else {
+                        return Flexible(
+                            flex: 8,
+                            fit: FlexFit.tight,
+                            child: Container(
+                                margin: const EdgeInsets.all(10.0),
+                                padding: const EdgeInsets.all(15.0),
+                                child: const Center(
+                                  child: SpinKitFadingCircle(
+                                    color: Colors.black,
+                                    size: 80.0,
+                                  ),
+                                )
+                            )
+                        );
+                      }
+                    }
+                ),
+              ],
+            ),
+          ),
+        )
     );
   }
 }

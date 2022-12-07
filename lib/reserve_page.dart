@@ -52,7 +52,7 @@ class _ReservePageState extends State<ReservePage> {
   final AsyncMemoizer _memoizer = AsyncMemoizer();
 
   Future _getDataSetting1(String dormitory, String machineNum)
-    => _memoizer.runOnce(() => getReservationData(dormitory, machineNum));
+  => _memoizer.runOnce(() => getReservationData(dormitory, machineNum));
 
   Future<String> getReservationData(String dormitory, String machineNum) async {
     http.Response res = await http.get(Uri.parse(
@@ -336,7 +336,6 @@ class _ReservePageState extends State<ReservePage> {
     prefs.setBool('${userId}_settedAlarm', value);
   }   // 로컬에 데이터 저장용도
 
-
   var userInfo;
   var reservationData;
 
@@ -351,433 +350,433 @@ class _ReservePageState extends State<ReservePage> {
     }
 
     return WillPopScope(
-      child: Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            title: Text(
-              '${userInfo.getDormitory()} ${userInfo.getMachineNum()} 예약',
-              style: TextStyle(
+        child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              title: Text(
+                '${userInfo.getDormitory()} ${userInfo.getMachineNum()} 예약',
+                style: TextStyle(
+                    color: Colors.blue
+                ),
+              ),
+              leading: IconButton(
+                onPressed: () {
+                  MyTime.popping();
+                  reservationData.reservations['startDatetime'].clear();
+                  reservationData.reservations['endDatetime'].clear();
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.arrow_back_ios),
+              ),
+              centerTitle: true,
+              elevation: 0.0,
+              backgroundColor: Colors.white,
+              iconTheme: const IconThemeData(
                   color: Colors.blue
               ),
             ),
-            leading: IconButton(
-              onPressed: () {
-                MyTime.popping();
-                reservationData.reservations['startDatetime'].clear();
-                reservationData.reservations['endDatetime'].clear();
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.arrow_back_ios),
-            ),
-            centerTitle: true,
-            elevation: 0.0,
-            backgroundColor: Colors.white,
-            iconTheme: const IconThemeData(
-                color: Colors.blue
-            ),
-          ),
-          body: FutureBuilder(
-              future: _getDataSetting1(userInfo.getDormitory(), userInfo.getMachineNum()),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.hasData) {
-                  if (snapshot.data == "404: Machine Not Found") {
-                    return const Center(
-                      child: Text(
-                        "404: Machine Not Found",
-                        style: TextStyle(
-                            fontSize: 30,
-                            fontStyle: FontStyle.italic
+            body: FutureBuilder(
+                future: _getDataSetting1(userInfo.getDormitory(), userInfo.getMachineNum()),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data == "404: Machine Not Found") {
+                      return const Center(
+                        child: Text(
+                          "404: Machine Not Found",
+                          style: TextStyle(
+                              fontSize: 30,
+                              fontStyle: FontStyle.italic
+                          ),
                         ),
-                      ),
-                    );
-                  } else {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: <Widget>[
-                        Flexible(
-                          flex: 4,
-                          fit: FlexFit.tight,
-                          child: Container(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  margin: const EdgeInsets.only(bottom: 20),
-                                  padding: const EdgeInsets.only(top: 20, bottom: 20),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0x0a0a0aff),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: RichText(
-                                    text: const TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: '< 예약시 주의사항 >\n\n',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: '최대 2시간까지만 예약 가능합니다.\n',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: '최대 한번까지만 예약이 가능합니다.',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black
-                                          ),
-                                        ),
-                                      ],
+                      );
+                    } else {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          Flexible(
+                            flex: 4,
+                            fit: FlexFit.tight,
+                            child: Container(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 20),
+                                    padding: const EdgeInsets.only(top: 20, bottom: 20),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0x0a0a0aff),
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
-                                  ),
-                                ),
-
-                                Flexible(
-                                  flex: 1,
-                                  fit: FlexFit.tight,
-                                  child: Text(
-                                    (dDay_0 == false && dDay_1 == false && dDay_2 == false) ?
-                                    "날짜를 선택해주세요" : (count == 0) ?
-                                    "시작 시간을 선택해주세요" : (count == 1) ?
-                                    "지속 시간을 선택해주세요" : "예약 버튼을 눌러주세요",
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                        fontSize: 25
-                                    ),
-                                  ),
-                                ),
-
-                                Flexible(
-                                  flex: 4,
-                                  fit: FlexFit.tight,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Flexible(
-                                          flex: 1,
-                                          fit: FlexFit.loose,
-                                          child: Container(
-                                              alignment: Alignment.center,
-                                              child: ToggleButtons(
-                                                isSelected: isDateSelected,
-                                                direction: Axis.vertical,
-                                                onPressed: (value){
-                                                  toggleDateSelect(value);
-                                                  setState(() {
-                                                    reservationData = clearListView(reservationData);
-                                                  });
-                                                },
-                                                selectedColor: Colors.black,
-                                                fillColor: Colors.greenAccent,
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                                                    child: Text(
-                                                      '${DateTime.parse(MyTime.getToday(daySelect: 0)).month}월 '
-                                                          '${DateTime.parse(MyTime.getToday(daySelect: 0)).day}일',
-                                                      //style: TextStyle(fontSize: 18),
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                                                    child: Text(
-                                                      '${DateTime.parse(MyTime.getToday(daySelect: 1)).month}월 '
-                                                          '${DateTime.parse(MyTime.getToday(daySelect: 1)).day}일',
-                                                      //style: TextStyle(fontSize: 18),
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                                                    child: Text(
-                                                      '${DateTime.parse(MyTime.getToday(daySelect: 2)).month}월 '
-                                                          '${DateTime.parse(MyTime.getToday(daySelect: 2)).day}일',
-                                                      //style: TextStyle(fontSize: 18),
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                          )
-                                      ),
-
-                                      Flexible(
-                                        flex: 1,
-                                        fit: FlexFit.loose,
-                                        child: Visibility(
-                                          visible: (dDay_0 == true || dDay_1 == true ||dDay_2 == true) ?
-                                          true : false,
-                                          child: Center(
-                                            child: ListView.builder(
-                                              shrinkWrap: true,
-                                              itemCount: timeList.length,
-                                              itemBuilder: (BuildContext context, int index) {
-                                                return _buildItem(timeList[index], index);
-                                              },
+                                    child: RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: '< 예약시 주의사항 >\n\n',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black
                                             ),
                                           ),
-                                        ),
+                                          TextSpan(
+                                            text: '최대 2시간까지만 예약 가능합니다.\n',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '최대 한번까지만 예약이 가능합니다.',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black
+                                            ),
+                                          ),
+                                        ],
                                       ),
-
-                                      Flexible(
-                                          flex: 1,
-                                          fit: FlexFit.loose,
-                                          child: Visibility(
-                                              visible: (MyTime.isStartTimeSelected == true) ?
-                                              true : false,
-                                              child: Center(
-                                                  child: ListView.builder(
-                                                    shrinkWrap: true,
-                                                    itemCount: durationList.length,
-                                                    itemBuilder: (BuildContext context, int index) {
-                                                      return _buildDurationItem(durationList[index], index);
-                                                    },
-                                                  )
-                                              )
-                                          )
-                                      )
-                                    ],
+                                    ),
                                   ),
-                                ),
 
-                                Flexible(
+                                  Flexible(
                                     flex: 1,
                                     fit: FlexFit.tight,
-                                    child: Row(
-                                      children: [
-                                        Flexible(
-                                            flex: 1,
-                                            fit: FlexFit.tight,
-                                            child: Visibility(
-                                                visible: (count >= 1) ?
-                                                true : false,
-                                                child: Text(
-                                                  "시작 시간 - "
-                                                      "${DateTime.parse('${MyTime.set_Day} ${MyTime.startHour}:00:00').month}월 "
-                                                      "${DateTime.parse('${MyTime.set_Day} ${MyTime.startHour}:00:00').day}일 "
-                                                      "${DateTime.parse('${MyTime.set_Day} ${MyTime.startHour}:00:00').hour}시",
-                                                  textAlign: TextAlign.center,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.black,
-                                                  ),
-                                                )
-                                            )
-                                        ),
-                                        Flexible(
-                                            flex: 1,
-                                            fit: FlexFit.tight,
-                                            child: Visibility(
-                                                visible: (count == 2) ?
-                                                true : false,
-                                                child: Text(
-                                                  "종료 시간 - "
-                                                      "${DateTime.parse('${MyTime.set_Day2} ${MyTime.endHour}:00:00').month}월 "
-                                                      "${DateTime.parse('${MyTime.set_Day2} ${MyTime.endHour}:00:00').day}일 "
-                                                      "${DateTime.parse('${MyTime.set_Day2} ${MyTime.endHour}:00:00').hour}시",
-                                                  textAlign: TextAlign.center,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.black,
-                                                  ),
-                                                )
-                                            )
-                                        ),
-                                      ],
-                                    )
-                                ),
+                                    child: Text(
+                                      (dDay_0 == false && dDay_1 == false && dDay_2 == false) ?
+                                      "날짜를 선택해주세요" : (count == 0) ?
+                                      "시작 시간을 선택해주세요" : (count == 1) ?
+                                      "지속 시간을 선택해주세요" : "예약 버튼을 눌러주세요",
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                          fontSize: 25
+                                      ),
+                                    ),
+                                  ),
 
-                                Flexible(
-                                    flex: 1,
+                                  Flexible(
+                                    flex: 4,
                                     fit: FlexFit.tight,
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
                                         Flexible(
-                                          flex: 1,
-                                          fit: FlexFit.loose,
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            child: ElevatedButton(
-                                              onPressed: (){
-                                                setState(() {
-                                                  reservationData = clearListView(reservationData);
-                                                });
-                                              },
-                                              child: const Text("초기화"),
-                                            ),
-                                          ),
+                                            flex: 1,
+                                            fit: FlexFit.loose,
+                                            child: Container(
+                                                alignment: Alignment.center,
+                                                child: ToggleButtons(
+                                                  isSelected: isDateSelected,
+                                                  direction: Axis.vertical,
+                                                  onPressed: (value){
+                                                    toggleDateSelect(value);
+                                                    setState(() {
+                                                      reservationData = clearListView(reservationData);
+                                                    });
+                                                  },
+                                                  selectedColor: Colors.black,
+                                                  fillColor: Colors.greenAccent,
+                                                  children: [
+                                                    Padding(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                                      child: Text(
+                                                        '${DateTime.parse(MyTime.getToday(daySelect: 0)).month}월 '
+                                                            '${DateTime.parse(MyTime.getToday(daySelect: 0)).day}일',
+                                                        //style: TextStyle(fontSize: 18),
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                                      child: Text(
+                                                        '${DateTime.parse(MyTime.getToday(daySelect: 1)).month}월 '
+                                                            '${DateTime.parse(MyTime.getToday(daySelect: 1)).day}일',
+                                                        //style: TextStyle(fontSize: 18),
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                                      child: Text(
+                                                        '${DateTime.parse(MyTime.getToday(daySelect: 2)).month}월 '
+                                                            '${DateTime.parse(MyTime.getToday(daySelect: 2)).day}일',
+                                                        //style: TextStyle(fontSize: 18),
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                            )
                                         ),
+
                                         Flexible(
                                           flex: 1,
                                           fit: FlexFit.loose,
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            child: ElevatedButton(
-                                              onPressed: (){
-                                                DateTime newStartTime = DateTime.parse('${MyTime.set_Day} ${MyTime.startHour}:00:00');
-                                                DateTime newEndTime = DateTime.parse('${MyTime.set_Day2} ${MyTime.endHour}:00:00');
-
-                                                if(MyTime.isStartTimeSelected == false || MyTime.isEndTimeSelected == false) {
-                                                  showDialog(
-                                                      context: context,
-                                                      barrierDismissible: false,
-                                                      builder: (BuildContext context) {
-                                                        return AlertDialog(
-                                                          content: const Text('시간을 지정해주세요.'),
-                                                          actions: [
-                                                            Center(
-                                                              child: ElevatedButton(
-                                                                child: const Text('확인'),
-                                                                onPressed: () {
-                                                                  Navigator.pop(context);
-                                                                },
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        );
-                                                      }
-                                                  );
-                                                } else {
-                                                  putReservationData(userInfo.getUserId(), userInfo.getDormitory(), userInfo.getMachineNum(), newStartTime, newEndTime).then((value) {
-                                                    if(value == "already reservation"){
-                                                      showDialog(
-                                                          context: context,
-                                                          barrierDismissible: false,
-                                                          builder: (BuildContext context) {
-                                                            return AlertDialog(
-                                                              content: const Text('이미 예약된 내역이 있습니다.'),
-                                                              actions: [
-                                                                Center(
-                                                                  child: ElevatedButton(
-                                                                    child: const Text('확인'),
-                                                                    onPressed: () {
-                                                                      Navigator.pop(context);
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            );
-                                                          }
-                                                      );
-                                                    } else if (value == "There's no machine") {
-                                                      showDialog(
-                                                          context: context,
-                                                          barrierDismissible: false,
-                                                          builder: (BuildContext context) {
-                                                            return AlertDialog(
-                                                              content: const Text('기기 확인이 불가능합니다.'),
-                                                              actions: [
-                                                                Center(
-                                                                  child: ElevatedButton(
-                                                                    child: const Text('확인'),
-                                                                    onPressed: () {
-                                                                      Navigator.pop(context);
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            );
-                                                          }
-                                                      );
-                                                    } else if (value == "success") {
-                                                      userInfo.putCanReservation(false);
-                                                      userInfo.putStartTime(DateFormat('yyyy-MM-dd HH:00:00').format(newStartTime));
-                                                      userInfo.putEndTime(DateFormat('yyyy-MM-dd HH:00:00').format(newEndTime));
-
-                                                      showDialog(
-                                                          context: context,
-                                                          barrierDismissible: false,
-                                                          builder: (BuildContext context) {
-                                                            return AlertDialog(
-                                                              content: Text("예약되었습니다.\n\n"
-                                                                  "${userInfo.getStartTime().month}월 ${userInfo.getStartTime().day}일 "
-                                                                  "${userInfo.getStartTime().hour}시 ${userInfo.getStartTime().minute}분"
-                                                                  " - "
-                                                                  "${userInfo.getEndTime().month}월 ${userInfo.getEndTime().day}일 "
-                                                                  "${userInfo.getEndTime().hour}시 ${userInfo.getEndTime().minute}분"),
-                                                              actions: [
-                                                                Center(
-                                                                  child: ElevatedButton(
-                                                                    child: const Text('확인'),
-                                                                    onPressed: () {
-                                                                      MyTime.popping();
-                                                                      reservationData.reservations['startDatetime'].clear();
-                                                                      reservationData.reservations['endDatetime'].clear();
-                                                                      Navigator.popAndPushNamed(context, '/mypage');
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            );
-                                                          }
-                                                      );
-                                                    }
-                                                  });
-                                                }
-                                              },
-                                              child: const Text("예약"),
+                                          child: Visibility(
+                                            visible: (dDay_0 == true || dDay_1 == true ||dDay_2 == true) ?
+                                            true : false,
+                                            child: Center(
+                                              child: ListView.builder(
+                                                shrinkWrap: true,
+                                                itemCount: timeList.length,
+                                                itemBuilder: (BuildContext context, int index) {
+                                                  return _buildItem(timeList[index], index);
+                                                },
+                                              ),
                                             ),
                                           ),
+                                        ),
+
+                                        Flexible(
+                                            flex: 1,
+                                            fit: FlexFit.loose,
+                                            child: Visibility(
+                                                visible: (MyTime.isStartTimeSelected == true) ?
+                                                true : false,
+                                                child: Center(
+                                                    child: ListView.builder(
+                                                      shrinkWrap: true,
+                                                      itemCount: durationList.length,
+                                                      itemBuilder: (BuildContext context, int index) {
+                                                        return _buildDurationItem(durationList[index], index);
+                                                      },
+                                                    )
+                                                )
+                                            )
                                         )
                                       ],
-                                    )
-                                )
-                              ],
+                                    ),
+                                  ),
+
+                                  Flexible(
+                                      flex: 1,
+                                      fit: FlexFit.tight,
+                                      child: Row(
+                                        children: [
+                                          Flexible(
+                                              flex: 1,
+                                              fit: FlexFit.tight,
+                                              child: Visibility(
+                                                  visible: (count >= 1) ?
+                                                  true : false,
+                                                  child: Text(
+                                                    "시작 시간 - "
+                                                        "${DateTime.parse('${MyTime.set_Day} ${MyTime.startHour}:00:00').month}월 "
+                                                        "${DateTime.parse('${MyTime.set_Day} ${MyTime.startHour}:00:00').day}일 "
+                                                        "${DateTime.parse('${MyTime.set_Day} ${MyTime.startHour}:00:00').hour}시",
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.black,
+                                                    ),
+                                                  )
+                                              )
+                                          ),
+                                          Flexible(
+                                              flex: 1,
+                                              fit: FlexFit.tight,
+                                              child: Visibility(
+                                                  visible: (count == 2) ?
+                                                  true : false,
+                                                  child: Text(
+                                                    "종료 시간 - "
+                                                        "${DateTime.parse('${MyTime.set_Day2} ${MyTime.endHour}:00:00').month}월 "
+                                                        "${DateTime.parse('${MyTime.set_Day2} ${MyTime.endHour}:00:00').day}일 "
+                                                        "${DateTime.parse('${MyTime.set_Day2} ${MyTime.endHour}:00:00').hour}시",
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.black,
+                                                    ),
+                                                  )
+                                              )
+                                          ),
+                                        ],
+                                      )
+                                  ),
+
+                                  Flexible(
+                                      flex: 1,
+                                      fit: FlexFit.tight,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Flexible(
+                                            flex: 1,
+                                            fit: FlexFit.loose,
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: ElevatedButton(
+                                                onPressed: (){
+                                                  setState(() {
+                                                    reservationData = clearListView(reservationData);
+                                                  });
+                                                },
+                                                child: const Text("초기화"),
+                                              ),
+                                            ),
+                                          ),
+                                          Flexible(
+                                            flex: 1,
+                                            fit: FlexFit.loose,
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: ElevatedButton(
+                                                onPressed: (){
+                                                  DateTime newStartTime = DateTime.parse('${MyTime.set_Day} ${MyTime.startHour}:00:00');
+                                                  DateTime newEndTime = DateTime.parse('${MyTime.set_Day2} ${MyTime.endHour}:00:00');
+
+                                                  if(MyTime.isStartTimeSelected == false || MyTime.isEndTimeSelected == false) {
+                                                    showDialog(
+                                                        context: context,
+                                                        barrierDismissible: false,
+                                                        builder: (BuildContext context) {
+                                                          return AlertDialog(
+                                                            content: const Text('시간을 지정해주세요.'),
+                                                            actions: [
+                                                              Center(
+                                                                child: ElevatedButton(
+                                                                  child: const Text('확인'),
+                                                                  onPressed: () {
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        }
+                                                    );
+                                                  } else {
+                                                    putReservationData(userInfo.getUserId(), userInfo.getDormitory(), userInfo.getMachineNum(), newStartTime, newEndTime).then((value) {
+                                                      if(value == "already reservation"){
+                                                        showDialog(
+                                                            context: context,
+                                                            barrierDismissible: false,
+                                                            builder: (BuildContext context) {
+                                                              return AlertDialog(
+                                                                content: const Text('이미 예약된 내역이 있습니다.'),
+                                                                actions: [
+                                                                  Center(
+                                                                    child: ElevatedButton(
+                                                                      child: const Text('확인'),
+                                                                      onPressed: () {
+                                                                        Navigator.pop(context);
+                                                                      },
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            }
+                                                        );
+                                                      } else if (value == "There's no machine") {
+                                                        showDialog(
+                                                            context: context,
+                                                            barrierDismissible: false,
+                                                            builder: (BuildContext context) {
+                                                              return AlertDialog(
+                                                                content: const Text('기기 확인이 불가능합니다.'),
+                                                                actions: [
+                                                                  Center(
+                                                                    child: ElevatedButton(
+                                                                      child: const Text('확인'),
+                                                                      onPressed: () {
+                                                                        Navigator.pop(context);
+                                                                      },
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            }
+                                                        );
+                                                      } else if (value == "success") {
+                                                        userInfo.putCanReservation(false);
+                                                        userInfo.putStartTime(DateFormat('yyyy-MM-dd HH:00:00').format(newStartTime));
+                                                        userInfo.putEndTime(DateFormat('yyyy-MM-dd HH:00:00').format(newEndTime));
+
+                                                        showDialog(
+                                                            context: context,
+                                                            barrierDismissible: false,
+                                                            builder: (BuildContext context) {
+                                                              return AlertDialog(
+                                                                content: Text("예약되었습니다.\n\n"
+                                                                    "${userInfo.getStartTime().month}월 ${userInfo.getStartTime().day}일 "
+                                                                    "${userInfo.getStartTime().hour}시 ${userInfo.getStartTime().minute}분"
+                                                                    " - "
+                                                                    "${userInfo.getEndTime().month}월 ${userInfo.getEndTime().day}일 "
+                                                                    "${userInfo.getEndTime().hour}시 ${userInfo.getEndTime().minute}분"),
+                                                                actions: [
+                                                                  Center(
+                                                                    child: ElevatedButton(
+                                                                      child: const Text('확인'),
+                                                                      onPressed: () {
+                                                                        MyTime.popping();
+                                                                        reservationData.reservations['startDatetime'].clear();
+                                                                        reservationData.reservations['endDatetime'].clear();
+                                                                        Navigator.popAndPushNamed(context, '/mypage');
+                                                                      },
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            }
+                                                        );
+                                                      }
+                                                    });
+                                                  }
+                                                },
+                                                child: const Text("예약"),
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      )
+                                  )
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      );
+                    }
+                  } else if (snapshot.hasError) {
+                    return Center(
+                        child: Container(
+                            margin: const EdgeInsets.all(12),
+                            child: Text(
+                              'Error: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
+                              style: TextStyle(fontSize: 15),
+                            )
+                        )
+                    );
+                  } else {
+                    return Center(
+                        child: Container(
+                            margin: const EdgeInsets.all(12),
+                            child: const Center(
+                              child: SpinKitFadingCircle(
+                                color: Colors.black,
+                                size: 80.0,
+                              ),
+                            )
+                        )
                     );
                   }
-                } else if (snapshot.hasError) {
-                  return Center(
-                      child: Container(
-                          margin: const EdgeInsets.all(12),
-                          child: Text(
-                            'Error: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
-                            style: TextStyle(fontSize: 15),
-                          )
-                      )
-                  );
-                } else {
-                  return Center(
-                      child: Container(
-                          margin: const EdgeInsets.all(12),
-                          child: const Center(
-                            child: SpinKitFadingCircle(
-                              color: Colors.black,
-                              size: 80.0,
-                            ),
-                          )
-                      )
-                  );
                 }
-              }
-          )
-      ),
-      onWillPop: (){
-        setState(() {
-          MyTime.popping();
-          reservationData.reservations['startDatetime'].clear();
-          reservationData.reservations['endDatetime'].clear();
-        });
-        return Future(() => false);
-      }
+            )
+        ),
+        onWillPop: (){
+          setState(() {
+            MyTime.popping();
+            reservationData.reservations['startDatetime'].clear();
+            reservationData.reservations['endDatetime'].clear();
+          });
+          return Future(() => false);
+        }
     );
   }
 

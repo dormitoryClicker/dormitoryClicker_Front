@@ -1115,15 +1115,15 @@ class _MyPageState extends State<MyPage> with WidgetsBindingObserver {
                           child: const Text('취소'),
                         ),
                         ElevatedButton(
-                            onPressed: () async {
-                              setState(()  {
-                                Navigator.pop(context);
-                                _storeInfo(userInfo.getUserId(), false);
-                              });
-                              _loadInfo(userInfo.getUserId());
-                              await _flutterLocalNotificationsPlugin.cancel(0);// [메시지 등록 취소]
-                            },
-                            child: const Text('확인'),
+                          onPressed: () async {
+                            setState(()  {
+                              Navigator.pop(context);
+                              _storeInfo(userInfo.getUserId(), false);
+                            });
+                            _loadInfo(userInfo.getUserId());
+                            await _flutterLocalNotificationsPlugin.cancel(0);// [메시지 등록 취소]
+                          },
+                          child: const Text('확인'),
                         ),
                       ],
                     );
@@ -1139,10 +1139,10 @@ class _MyPageState extends State<MyPage> with WidgetsBindingObserver {
   Widget getNotIcon(Widget icon){
     return Container(
       foregroundDecoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/ban.png'),
-          fit: BoxFit.fitWidth
-        )
+          image: DecorationImage(
+              image: AssetImage('assets/ban.png'),
+              fit: BoxFit.fitWidth
+          )
       ),
       child: icon,
     );
